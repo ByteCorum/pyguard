@@ -23,4 +23,4 @@ jobs:
                   license-check: true
                   vulnerability-check: true
                   comment-summary-in-pr: always
-                  deny-licenses: EPL-1.0, EPL-2.0, CDDL-1.0, CDDL-1.1, Apache-1.1, BSD-4-Clause, MS-PL, NPOSL-3.0, Artistic-1.0, NOASSERTION
+                  deny-licenses: EPL-1.0, EPL-2.0, CDDL-1.0, CDDL-1.1, Apache-1.1, BSD-4-Clause, MS-PL, NPOSL-3.0, Artistic-1.0

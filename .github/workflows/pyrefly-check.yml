@@ -1,0 +1,32 @@
+---
+name: Pyrefly Check
+
+on:
+    push:
+        branches: [stable, main, master]
+    pull_request:
+        branches: [stable, main, master]
+
+jobs:
+    typecheck:
+        name: Pyrefly Type Check
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Check out code from GitHub
+              uses: actions/checkout@v7
+
+            - name: Set up Python
+              uses: actions/setup-python@v7
+              with:
+                  python-version: "3.14"
+
+            - name: Install dependencies
+              run: |
+                  python3 -m pip install --upgrade pip
+                  pip3 install -r requirements.txt
+                  pip3 install pyrefly
+
+            - name: Perform Codebase Check
+              run: |
+                  pyrefly check --output-format=github

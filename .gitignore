@@ -153,4 +153,4 @@ cython_debug/
 pyvenv/
 .vscode/
 obfuscated/
-scr/test.py
+src/test.py

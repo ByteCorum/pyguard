@@ -1,231 +1,231 @@
 name: Linux tests
 
 on:
-  push:
-    branches: [ stable, WIP ]
-  pull_request:
-    branches: [ stable, WIP ]
+    push:
+        branches: [stable, WIP]
+    pull_request:
+        branches: [stable, WIP]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Build Executable
-      working-directory: scr
-      run: |
-        chmod +x build-linux.sh
-        ./build-linux.sh
-    - name: Archive Executable
-      uses: actions/upload-artifact@v4
-      with:
-        name: dotpyguard-linux
-        path: scr/dotpyguard
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -r requirements.txt
+            - name: Build Executable
+              working-directory: src
+              run: |
+                  chmod +x build-linux.sh
+                  ./build-linux.sh
+            - name: Archive Executable
+              uses: actions/upload-artifact@v4
+              with:
+                  name: dotpyguard-linux
+                  path: src/dotpyguard
 
-  obfuscation-multifile-linux:
-    needs: ["build"]
-    runs-on: ubuntu-latest
+    obfuscation-multifile-linux:
+        needs: ["build"]
+        runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v4
+        steps:
+            - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
 
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+            - name: Install Dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -r requirements.txt
 
-    - name: Download Executable
-      uses: actions/download-artifact@v4
-      with:
-        name: dotpyguard-linux
-        path: "examples"
+            - name: Download Executable
+              uses: actions/download-artifact@v4
+              with:
+                  name: dotpyguard-linux
+                  path: "examples"
 
-    - name: Preparation For Tests
-      working-directory: examples
-      run: |
-        mv dotpyguard multifile/
-        chmod +x multifile/dotpyguard
-        rm -rf multifile/obfuscated
+            - name: Preparation For Tests
+              working-directory: examples
+              run: |
+                  mv dotpyguard multifile/
+                  chmod +x multifile/dotpyguard
+                  rm -rf multifile/obfuscated
 
-    - name: Obfuscation
-      working-directory: examples/multifile
-      run: |
-        ./dotpyguard obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input --files lib.py main.py
+            - name: Obfuscation
+              working-directory: examples/multifile
+              run: |
+                  ./dotpyguard obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input --files lib.py main.py
 
-    - name: Testing
-      working-directory: examples/multifile/obfuscated
-      run: |
-        OUTPUT=$(python main.py)
-        echo "Output: "
-        echo "$OUTPUT"
+            - name: Testing
+              working-directory: examples/multifile/obfuscated
+              run: |
+                  OUTPUT=$(python main.py)
+                  echo "Output: "
+                  echo "$OUTPUT"
 
-        echo "Result: "
-        if [ "$OUTPUT" = "hello world" ]; then
-          echo "Success: main.py output contains 'hello world'"
-        else
-          echo "Failure: main.py output does not contain 'hello world'"
-          exit 1
-        fi
+                  echo "Result: "
+                  if [ "$OUTPUT" = "hello world" ]; then
+                    echo "Success: main.py output contains 'hello world'"
+                  else
+                    echo "Failure: main.py output does not contain 'hello world'"
+                    exit 1
+                  fi
 
-  obfuscation-onefile-linux:
-    needs: ["build"]
-    runs-on: ubuntu-latest
+    obfuscation-onefile-linux:
+        needs: ["build"]
+        runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v4
+        steps:
+            - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
 
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+            - name: Install Dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -r requirements.txt
 
-    - name: Download Executable
-      uses: actions/download-artifact@v4
-      with:
-        name: dotpyguard-linux
-        path: "examples"
+            - name: Download Executable
+              uses: actions/download-artifact@v4
+              with:
+                  name: dotpyguard-linux
+                  path: "examples"
 
-    - name: Preparation For Tests
-      working-directory: examples
-      run: |
-        mv dotpyguard onefile/
-        chmod +x onefile/dotpyguard
-        rm -rf onefile/obfuscated
+            - name: Preparation For Tests
+              working-directory: examples
+              run: |
+                  mv dotpyguard onefile/
+                  chmod +x onefile/dotpyguard
+                  rm -rf onefile/obfuscated
 
-    - name: Obfuscation
-      working-directory: examples/onefile
-      run: |
-        ./dotpyguard obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input main.py
+            - name: Obfuscation
+              working-directory: examples/onefile
+              run: |
+                  ./dotpyguard obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input main.py
 
-    - name: Testing
-      working-directory: examples/onefile/obfuscated
-      run: |
-        OUTPUT=$(python main.py)
-        echo "Output: "
-        echo "$OUTPUT"
+            - name: Testing
+              working-directory: examples/onefile/obfuscated
+              run: |
+                  OUTPUT=$(python main.py)
+                  echo "Output: "
+                  echo "$OUTPUT"
 
-        echo "Result: "
-        if [ "$OUTPUT" = "hello world" ]; then
-          echo "Success: main.py output contains 'hello world'"
-        else
-          echo "Failure: main.py output does not contain 'hello world'"
-          exit 1
-        fi
+                  echo "Result: "
+                  if [ "$OUTPUT" = "hello world" ]; then
+                    echo "Success: main.py output contains 'hello world'"
+                  else
+                    echo "Failure: main.py output does not contain 'hello world'"
+                    exit 1
+                  fi
 
-  obfuscationlegacy-multifile-linux:
-    needs: ["build"]
-    runs-on: ubuntu-latest
+    obfuscationlegacy-multifile-linux:
+        needs: ["build"]
+        runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v4
+        steps:
+            - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
 
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+            - name: Install Dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -r requirements.txt
 
-    - name: Download Executable
-      uses: actions/download-artifact@v4
-      with:
-        name: dotpyguard-linux
-        path: "examples"
+            - name: Download Executable
+              uses: actions/download-artifact@v4
+              with:
+                  name: dotpyguard-linux
+                  path: "examples"
 
-    - name: Preparation For Tests
-      working-directory: examples
-      run: |
-        mv dotpyguard multifile-legacy/
-        chmod +x multifile-legacy/dotpyguard
-        rm -rf multifile-legacy/obfuscated
+            - name: Preparation For Tests
+              working-directory: examples
+              run: |
+                  mv dotpyguard multifile-legacy/
+                  chmod +x multifile-legacy/dotpyguard
+                  rm -rf multifile-legacy/obfuscated
 
-    - name: Obfuscation
-      working-directory: examples/multifile-legacy
-      run: |
-        ./dotpyguard obfuscatelegacy --no-input --mode 4 --loops 6 --files lib.py,main.py
+            - name: Obfuscation
+              working-directory: examples/multifile-legacy
+              run: |
+                  ./dotpyguard obfuscatelegacy --no-input --mode 4 --loops 6 --files lib.py,main.py
 
-    - name: Testing
-      working-directory: examples/multifile-legacy/obfuscated
-      run: |
-        OUTPUT=$(python main.py)
-        echo "Output: "
-        echo "$OUTPUT"
+            - name: Testing
+              working-directory: examples/multifile-legacy/obfuscated
+              run: |
+                  OUTPUT=$(python main.py)
+                  echo "Output: "
+                  echo "$OUTPUT"
 
-        echo "Result: "
-        if [ "$OUTPUT" = "hello world" ]; then
-          echo "Success: main.py output contains 'hello world'"
-        else
-          echo "Failure: main.py output does not contain 'hello world'"
-          exit 1
-        fi
+                  echo "Result: "
+                  if [ "$OUTPUT" = "hello world" ]; then
+                    echo "Success: main.py output contains 'hello world'"
+                  else
+                    echo "Failure: main.py output does not contain 'hello world'"
+                    exit 1
+                  fi
 
-  obfuscationlegacy-onefile-linux:
-    needs: ["build"]
-    runs-on: ubuntu-latest
+    obfuscationlegacy-onefile-linux:
+        needs: ["build"]
+        runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v4
+        steps:
+            - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
 
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+            - name: Install Dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -r requirements.txt
 
-    - name: Download Executable
-      uses: actions/download-artifact@v4
-      with:
-        name: dotpyguard-linux
-        path: "examples"
+            - name: Download Executable
+              uses: actions/download-artifact@v4
+              with:
+                  name: dotpyguard-linux
+                  path: "examples"
 
-    - name: Preparation For Tests
-      working-directory: examples
-      run: |
-        mv dotpyguard onefile-legacy/
-        chmod +x onefile-legacy/dotpyguard
-        rm -rf onefile-legacy/obfuscated
+            - name: Preparation For Tests
+              working-directory: examples
+              run: |
+                  mv dotpyguard onefile-legacy/
+                  chmod +x onefile-legacy/dotpyguard
+                  rm -rf onefile-legacy/obfuscated
 
-    - name: Obfuscation
-      working-directory: examples/onefile-legacy
-      run: |
-        ./dotpyguard obfuscatelegacy --no-input --mode 4 --loops 6 --files main.py
+            - name: Obfuscation
+              working-directory: examples/onefile-legacy
+              run: |
+                  ./dotpyguard obfuscatelegacy --no-input --mode 4 --loops 6 --files main.py
 
-    - name: Testing
-      working-directory: examples/onefile-legacy/obfuscated
-      run: |
-        OUTPUT=$(python main.py)
-        echo "Output: "
-        echo "$OUTPUT"
+            - name: Testing
+              working-directory: examples/onefile-legacy/obfuscated
+              run: |
+                  OUTPUT=$(python main.py)
+                  echo "Output: "
+                  echo "$OUTPUT"
 
-        echo "Result: "
-        if [ "$OUTPUT" = "hello world" ]; then
-          echo "Success: main.py output contains 'hello world'"
-        else
-          echo "Failure: main.py output does not contain 'hello world'"
-          exit 1
-        fi
+                  echo "Result: "
+                  if [ "$OUTPUT" = "hello world" ]; then
+                    echo "Success: main.py output contains 'hello world'"
+                  else
+                    echo "Failure: main.py output does not contain 'hello world'"
+                    exit 1
+                  fi

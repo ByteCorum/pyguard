@@ -1,0 +1,56 @@
+---
+name: Auto-Reply to Pull Request
+
+on:
+    pull_request:
+        types: [opened, ready_for_review]
+
+permissions:
+    contents: read
+
+jobs:
+    auto-reply:
+        name: Auto-Reply to Pull Request
+        runs-on: ubuntu-latest
+        permissions:
+            pull-requests: write
+
+        steps:
+            - name: Reply to pull request
+              uses: actions/github-script@v9
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+
+                  script: |
+                      const pr = context.payload.pull_request;
+                      const isDraft = pr.draft;
+
+                      // Skip if it's a draft PR being opened (not converted to ready)
+                      if (isDraft && context.payload.action === 'opened') {
+                        return;
+                      }
+
+                      let prComment = `**Thank you for contributing to this project!**
+                      We appreciate the time and effort you have invested to help improve it.
+                      Your pull request will be reviewed as soon as possible.
+
+                      A few reminders while you wait:
+                      - The PR title should follow the [commit style](https://github.com/ByteCorum/test-of-template/blob/main/docs/CONTRIBUTING.md#commit-style)
+                      - Please keep the [pull request checklist](https://github.com/ByteCorum/test-of-template/blob/main/.github/PULL_REQUEST_TEMPLATE.md) items updated
+                      - CI checks must pass before review begins`;
+
+                      // Post the comment
+                      await github.rest.issues.createComment({
+                        issue_number: pr.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: prComment
+                      });
+
+                      // Add reaction to show the bot has processed the issue
+                      await github.rest.reactions.createForIssue({
+                        issue_number: pr.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        content: 'eyes'
+                      });

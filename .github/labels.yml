@@ -1,73 +1,91 @@
+---
 # Type
-- name: "bug"
+- name: "type: bug"
+  color: ee0000
+  description: "Something isn't working as expected or causes issues"
+- name: "type: documentation"
+  color: 0000ee
+  description: "Improvements or additions to documentation"
+- name: "type: enhancement"
+  color: 00ee00
+  description: "Ideas for improvements or new features"
+- name: "type: question"
   color: ee0701
-  description: "Something isn't working as expected or causes issues."
-- name: "question"
-  color: cc317c
-  description: "Further information is requested or clarification needed."
-- name: "suggestion"
-  color: 84b6eb
-  description: "Ideas for improvements or new features."
-- name: "docs"
-  color: 0075ca
-  description: "Documentation improvements or additions."
-- name: "feat"
-  color: 0e8a16
-  description: "New feature or functionality."
-- name: "fix"
-  color: ee0701
-  description: "Bug fix or correction."
-- name: "style"
-  color: f9d0c4
-  description: "Code style, formatting, or cosmetic changes."
-- name: "refactor"
-  color: fbca04
-  description: "Code restructuring without changing functionality."
-- name: "test"
-  color: 1d76db
-  description: "Adding or updating tests."
-- name: "chore"
-  color: fef2c0
-  description: "Maintenance tasks, build processes, or tooling changes."
-
-# Priority
-- name: "high-priority"
-  color: b60205
-  description: "High priority issue that should be addressed urgently."
-- name: "medium-priority"
-  color: fbca04
-  description: "Medium priority issue for normal workflow."
-- name: "low-priority"
-  color: 0e8a16
-  description: "Low priority issue that can be addressed when time permits."
-- name: "no-priority"
-  color: e4e669
-  description: "No specific priority assigned."
+  description: "Usage question belongs in Discussions"
+- name: "type: maintenance"
+  color: bf9b18
+  description: "Maintenance work that neither adds features nor fixes bugs"
 
 # Status
-- name: "wip-status"
-  color: ff9500
-  description: "Work in progress - currently being worked on."
-- name: "suspended-status"
+- name: "status: done"
+  color: 0cbf00
+  description: "Already completed and awaits future actions"
+- name: "status: needs-triage"
+  color: e99695
+  description: "Awaiting maintainer review"
+- name: "status: in-progress"
+  color: fbca04
+  description: "Actively being worked on"
+- name: "status: blocked"
+  color: b60205
+  description: "Blocked by an external dependency"
+- name: "status: needs-info"
   color: 5319e7
-  description: "Work has been suspended or put on hold."
-- name: "invalid-status"
-  color: 000000
-  description: "This issue or pull request is not valid."
-- name: "duplicate-status"
-  color: cccccc
-  description: "This issue or pull request already exists."
-- name: "wontfix-status"
-  color: ffffff
-  description: "This will not be worked on or fixed."
+  description: "Waiting for additional information from the reporter"
+- name: "status: suspended"
+  color: fef2c0
+  description: "Work has been suspended or put on hold"
 
-# Impact
-- name: "major"
-  color: d73a4a
-  description: "Major changes with significant impact."
-- name: "minor"
-  color: 0075ca
-  description: "Minor changes with limited impact."
-- name: "regular"
-  color: 28a745
-  description: "Regular changes as part of normal development."
+# Priority
+- name: "priority: 0"
+  color: ee0000
+  description: "Highest priority issue that should be worked on immediately"
+- name: "priority: 1"
+  color: b60205
+  description: "High priority issue that should be addressed urgently"
+- name: "priority: 2"
+  color: fbca04
+  description: "Medium priority issue for normal workflow."
+- name: "priority: 3"
+  color: 0d5e89
+  description: "Low priority issue that can be addressed when time permits."
+
+# Size
+- name: "size: S"
+  color: c5def5
+  description: "Small: Under an hour, trivial change; small project impact"
+- name: "size: M"
+  color: 81d4fa
+  description: "Medium: a few hours to a day; medium project impact"
+- name: "size: L"
+  color: 4fc3f7
+  description: "Large: multiple days, significant rework; large project impact"
+- name: "size: XL"
+  color: 0288d1
+  description: "Extra large: should be split before starting; massive project impact"
+
+# Additional
+- name: "invalid"
+  color: ffffff
+  description: "Does not seem right"
+- name: "security"
+  color: b60205
+  description: "Security-related change or report"
+- name: "ai-marked"
+  color: b60205
+  description: "AI-generated contribution"
+- name: "breaking-change"
+  color: b60205
+  description: "Introduces a breaking change; requires MAJOR version bump"
+- name: "duplicate"
+  color: cccccc
+  description: "This issue or pull request already exists"
+- name: "wontfix"
+  color: ffffff
+  description: "This will not be worked on or fixed"
+- name: stale
+  color: cccccc
+  description: No activity for an extended period; will be closed soon unless updated
+- name: "no-stale"
+  color: 56d364
+  description: Exempt from stale automation; this item must not be auto-closed

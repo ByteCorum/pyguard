@@ -1,8 +1,19 @@
+---
 blank_issues_enabled: false
+
 contact_links:
-  - name: Contact Author
-    url: https://discord.com/users/798503509522645012
-    about: Author's discord account.
-  - name: Stackoverflow
-    url: https://stackoverflow.com/users/26622521/bytecorum
-    about: Maybe you can find solution on stackoverflow.
+    - name: Ask a Question
+      url: https://github.com/{VAR_USERNAME}/{VAR_REPO}/discussions/new?category=q-a
+      about: Get help with using this project - questions are answered in Discussions, not the issue tracker.
+
+    - name: Submit an Issue
+      url: https://github.com/{VAR_USERNAME}/{VAR_REPO}/issues/new/choose
+      about: Report a bug or request a feature using a structured template.
+
+    # - name: Report a Security Vulnerability
+    #   url: https://github.com/{VAR_USERNAME}/{VAR_REPO}/security/advisories/new
+    #   about: Report vulnerabilities privately via a GitHub Security Advisory - please do not open a public issue for security problems.
+
+    - name: Contact the Author
+      url: "{VAR_CONTACT_LINK}"
+      about: "{VAR_CONTACT_LINK_DESCRIPTION} - for matters that do not belong to any of this categories"

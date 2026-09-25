@@ -1,0 +1,11 @@
+---
+name: Question
+description: Ask about usage - questions are answered in Discussions, not the issue tracker.
+title: "[Question]: "
+labels: ["type: question", "invalid"]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Questions are handled in Discussions, not the issue tracker.
+              Please close this issue and ask there instead.

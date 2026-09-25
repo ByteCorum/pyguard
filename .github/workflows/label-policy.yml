@@ -1,0 +1,86 @@
+---
+name: Label Policy
+
+on:
+    issues:
+        types: [labeled]
+    pull_request_target:
+        types: [labeled]
+
+permissions:
+    contents: read
+
+jobs:
+    enforce:
+        name: Enforce label policy
+        runs-on: ubuntu-latest
+        permissions:
+            issues: write
+            pull-requests: write
+
+        steps:
+            - name: Check label policy
+              uses: actions/github-script@v9
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+
+                  script: |
+                      const { owner, repo } = context.repo;
+                      const number = context.issue.number;
+                      const added = context.payload.label.name;
+                      const isPR = !!context.payload.pull_request;
+
+                      // Policy tables (keep in sync with labels.yml)
+
+                      // Labels that may not appear on issues
+                      const prOnly = ['type: maintenance', 'ai-marked'];
+
+                      // Labels that may not appear on PRs
+                      const issueOnly = ['type: question'];
+
+                      // Mutually exclusive groups
+                      const exclusiveGroups = [
+                        ['priority: 0', 'priority: 1', 'priority: 2', 'priority: 3'],
+                        ['size: S','size: M','size: L','size: XL'],
+                        ['status: done','status: in-progress','status: blocked','status: needs-info', 'status: suspended', 'status: needs-triage'],
+                        ['type: bug','type: documentation','type: enhancement','type: question','type: maintenance'],
+                        ['no-stale','stale']
+                      ];
+
+                      const remove = async (name) => {
+                        await github.rest.issues.removeLabel({ owner, repo, issue_number: number, name });
+                      };
+
+                      // Rule 1: item-type restrictions
+                      if (isPR && issueOnly.includes(added)) {
+                        await remove(added);
+                        await github.rest.issues.createComment({
+                          owner, repo, issue_number: number,
+                          body: `The \`${added}\` label applies to issues only and has been removed.`
+                        });
+                        return;
+                      }
+                      if (!isPR && prOnly.includes(added)) {
+                        await remove(added);
+                        await github.rest.issues.createComment({
+                          owner, repo, issue_number: number,
+                          body: `The \`${added}\` label applies to pull requests only and has been removed.`
+                        });
+                        return;
+                      }
+
+                      // Rule 2: mutual exclusivity
+                      for (const group of exclusiveGroups) {
+                        if (!group.includes(added)) continue;
+                        const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+                          owner, repo, issue_number: number
+                        });
+                        const others = labels.map(l => l.name).filter(n => n !== added && group.includes(n));
+                        for (const other of others) {
+                          await remove(other);
+                          await github.rest.issues.createComment({
+                            owner, repo, issue_number: number,
+                            body: `Removed \`${other}\` this labels are mutually exclusive; \`${added}\` takes precedence.`
+                          });
+                        }
+                      }

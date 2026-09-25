@@ -3,9 +3,29 @@
 # Please see the documentation for all configuration options:
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
+---
 version: 2
 updates:
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
-    schedule:
-      interval: "weekly"
+    # GitHub Actions version updates
+    - package-ecosystem: "github-actions"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+      commit-message:
+          prefix: "chore"
+          include: "scope"
+      labels:
+          - "type: maintenance"
+          - "size: S"
+
+    # Python version updates
+    - package-ecosystem: "pip"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+      commit-message:
+          prefix: "chore"
+          include: "scope"
+      labels:
+          - "type: maintenance"
+          - "size: S"

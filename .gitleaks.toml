@@ -1,0 +1,4 @@
+# .gitleaks.toml Configuration for gitleaks (https://gitleaks.io/)
+
+[extend]
+useDefault = true

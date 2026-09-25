@@ -3,18 +3,13 @@
 python -m nuitka \
     --follow-imports \
     --remove-output \
-    --mode="app" \
+    --mode="onefile" \
     --assume-yes-for-downloads \
     --output-filename="pyguard" \
     --macos-app-name="pyguard" \
     --macos-app-icon="assets/app/icon.icns" \
-    --include-package="src/commands" \
-    --follow-import-to="src/commands" \
-    --include-data-files="src/commands/obfuscation/obfuscate.py=commands/obfuscation/obfuscate.py" \
-    --include-data-files="src/commands/obfuscation/obfuscatelegacy.py=commands/obfuscation/obfuscatelegacy.py" \
-    --include-data-files="src/commands/basic/help.py=commands/basic/help.py" \
-    --include-data-files="src/commands/basic/info.py=commands/basic/info.py" \
-    --include-data-files="src/commands/basic/dependencies.py=commands/basic/dependencies.py" \
+    --include-data-files="src/commands/basic/*.py=commands/basic/" \
+    --include-data-files="src/commands/obfuscation/*.py=commands/obfuscation/" \
     --company-name="ByteCorum" \
     --product-name="pyguard" \
     --file-version="3.0.1.0" \

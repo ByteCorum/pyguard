@@ -1,34 +1,252 @@
-# Handle line endings automatically for files detected as text
-# and leave all files detected as binary untouched.
+###############################################################################
+# Line endings
+###############################################################################
+# Normalize all text files to LF in the repository
 * text=auto
-# The above will handle all files NOT found below
 
+# Windows-only sources keep CRLF in the working tree
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+*.psm1  text eol=crlf
 
+# Unix shell scripts must stay LF
+*.sh    text eol=lf
+*.bash  text eol=lf
+*.zsh   text eol=lf
 
-# These files are text and should be normalized (Convert crlf => lf)
-.gitattributes text
-.gitignore      text
-*.py            text diff=Python
+###############################################################################
+# Popular languages
+###############################################################################
+# C / C++
+*.c     text diff=cpp
+*.cc    text diff=cpp
+*.cpp   text diff=cpp
+*.cxx   text diff=cpp
+*.h     text diff=cpp
+*.hh    text diff=cpp
+*.hpp   text diff=cpp
+*.hxx   text diff=cpp
 
+# C#
+*.cs    text diff=csharp
 
+# Go
+*.go    text diff=golang
 
-# Exclude files from exporting
+# Java / Kotlin / Scala
+*.java  text diff=java
+*.kt    text diff=kotlin
+*.kts   text diff=kotlin
+*.scala text diff=scala
 
-.gitattributes  export-ignore
-.gitignore      export-ignore
+# JavaScript / TypeScript
+*.js    text
+*.jsx   text
+*.mjs   text
+*.cjs   text
+*.ts    text
+*.tsx   text
 
+# Web
+*.html  text diff=html
+*.htm   text diff=html
+*.css   text
+*.scss  text
+*.sass  text
+*.less  text
+*.vue   text
+*.svelte text
 
+# Python
+*.py    text diff=python
+*.pyi   text diff=python
 
-# Enable syntax highlighting for files with extensions.
+# Ruby / PHP / Perl
+*.rb    text diff=ruby
+*.php   text diff=php
+*.pl    text diff=perl
+*.pm    text diff=perl
 
-*.py linguist-language=Python
-*.py linguist-detectable=true
-*.py linguist-documentation=false
+# Rust / Swift
+*.rs    text diff=rust
+*.swift text diff=swift
 
+# Shell / PowerShell
+*.bash  text
+*.zsh   text
+*.fish  text
 
-#Ignore dirs/files
+# JVM build scripts
+*.gradle text
+*.groovy text
 
-examples/multifile-global/*		    linguist-vendored
-examples/multifile-legacy/*		    linguist-vendored
-examples/onefile-global/*		    linguist-vendored
-examples/onefile-legacy/*		    linguist-vendored
+# Functional languages
+*.hs    text diff=haskell
+*.elm   text
+*.ex    text diff=elixir
+*.exs   text diff=elixir
+*.erl   text diff=erlang
+*.clj   text
+*.cljs  text
+*.ml    text
+*.fs    text diff=fsharp
+*.fsi   text diff=fsharp
+*.fsx   text diff=fsharp
+*.r     text diff=r
+*.jl    text
+*.lua   text
+*.nim   text
+*.zig   text
+*.d     text
+*.v     text
+*.cr    text
+
+# Legacy / systems
+*.asm   text
+*.s     text
+*.vb    text
+*.bas   text
+*.pas   text
+*.f     text
+*.f90   text
+*.for   text
+*.cob   text
+*.cbl   text
+*.ada   text diff=ada
+*.adb   text diff=ada
+*.m     text
+*.mm    text
+
+# Data / config / markup
+*.json  text
+*.yml   text
+*.yaml  text
+*.toml  text
+*.xml   text diff=xml
+*.md    text diff=markdown
+*.mdx   text
+*.rst   text
+*.adoc  text
+*.texi  text
+*.csv   text
+*.tsv   text
+*.sql   text
+*.proto text
+*.graphql text
+*.gql   text
+*.ini   text
+*.cfg   text
+*.conf  text
+*.properties text
+*.editorconfig text
+*.gitignore text
+*.gitattributes text
+Dockerfile     text
+*.dockerfile   text
+*.dockerignore text
+Makefile       text
+CMakeLists.txt text
+*.cmake        text
+meson.build    text
+Vagrantfile    text
+Jenkinsfile    text
+*.tf           text
+*.tfvars       text
+
+###############################################################################
+# Graphics / binary files
+###############################################################################
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.bmp   binary
+*.ico   binary
+*.icns  binary
+*.tif   binary
+*.tiff  binary
+*.webp  binary
+*.avif  binary
+*.psd   binary
+*.ai    binary
+*.eps   binary
+*.pdf   binary
+*.doc   binary
+*.docx  binary
+*.xls   binary
+*.xlsx  binary
+*.ppt   binary
+*.pptx  binary
+*.odt   binary
+*.ods   binary
+*.odp   binary
+
+# Compiled artifacts
+*.o     binary
+*.obj   binary
+*.so    binary
+*.dylib binary
+*.dll   binary
+*.exe   binary
+*.a     binary
+*.lib   binary
+*.class binary
+*.jar   binary
+*.war   binary
+*.pyc   binary
+*.pyo   binary
+*.wasm  binary
+*.node  binary
+
+# Fonts
+*.ttf   binary
+*.otf   binary
+*.woff  binary
+*.woff2 binary
+*.eot   binary
+
+# Media
+*.mp3   binary
+*.mp4   binary
+*.wav   binary
+*.ogg   binary
+*.flac  binary
+*.mov   binary
+*.avi   binary
+*.webm  binary
+
+# Archives
+*.zip   binary
+*.tar   binary
+*.gz    binary
+*.tgz   binary
+*.bz2   binary
+*.xz    binary
+*.7z    binary
+*.rar   binary
+
+###############################################################################
+# Language statistics
+###############################################################################
+# Force explicit language classification for ambiguous extensions
+*.h     linguist-language=C
+*.ino   linguist-language=C++
+*.cshtml linguist-language=HTML
+*.svg   linguist-language=XML
+
+# Make data/config languages count toward statistics
+*.sql   linguist-detectable=true
+*.yaml  linguist-detectable=true
+*.markdown linguist-detectable=true
+
+###############################################################################
+# export-ignore - excluded from `git archive` release tarballs
+###############################################################################
+.gitignore           export-ignore
+.gitattributes       export-ignore
+.gitlab-ci.yml       export-ignore
+.github/**           export-ignore
+.yamllint            export-ignore
+.gitleaks.toml       export-ignore
+.docs/**             export-ignore

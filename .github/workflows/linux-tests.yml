@@ -25,7 +25,7 @@ jobs:
         chmod +x build-linux.sh
         ./build-linux.sh
     - name: Archive Executable
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: dotpyguard-linux
         path: scr/dotpyguard

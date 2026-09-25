@@ -1,0 +1,33 @@
+---
+name: "Pull Request Dependency Review"
+
+on: [pull_request]
+
+permissions:
+    contents: read
+
+jobs:
+    dependency-review:
+        name: "Pull Request Dependency Review"
+        runs-on: ubuntu-latest
+        permissions:
+            pull-requests: write
+
+        steps:
+            - name: "Checkout Repository"
+              uses: actions/checkout@v7
+            - name: Dependency Review
+              uses: actions/dependency-review-action@v5
+              with:
+                  fail-on-severity: moderate
+                  license-check: true
+                  vulnerability-check: true
+                  comment-summary-in-pr: always
+                  allow-licenses: >-
+                      GPL-3.0-only, GPL-3.0-or-later,
+                      GPL-2.0-or-later,
+                      LGPL-3.0-only, LGPL-3.0-or-later, LGPL-2.1-or-later,
+                      AGPL-3.0-only, AGPL-3.0-or-later,
+                      MIT, MIT-0, ISC, Apache-2.0, BSD-2-Clause, BSD-3-Clause,
+                      0BSD, BSL-1.0, Unlicense, Zlib, CC0-1.0,
+                      Python-2.0, PostgreSQL, MPL-2.0

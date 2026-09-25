@@ -1,23 +1,94 @@
+---
 name: Sync labels
 
 on:
-  push:
-    branches:
-      - main
-      - master
-      - stable
-    paths:
-      - .github/labels.yml
+    push:
+        branches:
+            - main
+        paths:
+            - .github/labels.yml
+
+    workflow_dispatch:
+        inputs:
+            purge:
+                description: "Delete all existing labels before recreating from labels.yml"
+                required: false
+                default: false
+                type: boolean
+permissions:
+    contents: read
 
 jobs:
-  labels:
-    permissions: write-all
-    name: Sync labels
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code from GitHub
-        uses: actions/checkout@v2
-      - name: Run Label Syncer
-        uses: micnncim/action-label-syncer@v1.2.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    labels:
+        name: Sync labels from
+        runs-on: ubuntu-latest
+        permissions:
+            issues: write
+
+        steps:
+            - name: Check out code from GitHub
+              uses: actions/checkout@v7
+
+            - name: Sync labels from labels.yml
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  PURGE: ${{ inputs.purge }}
+
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  REPO="${GITHUB_REPOSITORY}"
+
+                  extract() { # $1 = field name, $2 = line; prints value
+                      local val="${2##*${1}:}"
+                      if [[ "$val" == "$2" ]]; then printf ''; return 0; fi
+                      val="${val//\"/}"
+                      val="${val#"${val%%[![:space:]]*}"}"
+                      val="${val%"${val##*[![:space:]]}"}"
+                      printf '%s' "$val"
+                  }
+
+                  apply() {
+                      local name="$1" color="$2" desc="$3"
+                      [[ -z "$name" ]] && return 0
+                      local args=(--repo "$REPO")
+                      [[ -n "$color" ]] && args+=(--color "$color")
+                      [[ -n "$desc" ]]  && args+=(--description "$desc")
+
+                      if gh label list --repo "$REPO" --json name --jq '.[].name' | grep -qxF "$name"; then
+                          echo "Updating: $name"
+                          gh label edit "$name" "${args[@]}"
+                      else
+                          echo "Creating: $name"
+                          gh label create "$name" "${args[@]}"
+                      fi
+                  }
+
+                  # Deletion phase
+                  if [[ "$PURGE" == "true" ]]; then
+                      echo "Purge requested. Deleting all existing labels"
+                      while IFS= read -r name; do
+                          [[ -z "$name" ]] && continue
+                          echo "Deleting: $name"
+                          gh label delete "$name" --yes --repo "$REPO"
+                      done < <(gh label list --json name --jq '.[].name' --repo "$REPO")
+                  fi
+
+                  # Upsert phase: accumulate fields across each label's multi-line record
+                  name="" color="" desc=""
+                  while IFS= read -r line || [[ -n "$line" ]]; do
+                      case "$line" in
+                          '- name:'*)
+                              apply "$name" "$color" "$desc"
+                              name="$(extract name "$line")"
+                              color=""; desc=""
+                              ;;
+                          *color:*)
+                              color="$(extract color "$line")"
+                              ;;
+                          *description:*)
+                              desc="$(extract description "$line")"
+                              ;;
+                      esac
+                  done < .github/labels.yml
+                  apply "$name" "$color" "$desc"

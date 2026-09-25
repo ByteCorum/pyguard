@@ -1,0 +1,71 @@
+---
+name: Auto-Reply to Issue
+
+on:
+    issues:
+        types: [opened]
+
+permissions:
+    contents: read
+
+jobs:
+    auto-reply:
+        name: Auto-Reply to Issue
+        runs-on: ubuntu-latest
+        permissions:
+            issues: write
+
+        steps:
+            - name: Reply to issue based on type
+              uses: actions/github-script@v9
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+
+                  script: |
+                      const issue = context.payload.issue;
+                      const issueTitle = issue.title.toLowerCase();
+                      const issueBody = issue.body || '';
+                      const labels = issue.labels.map(label => label.name);
+                      let issueComment = '';
+
+                      // Determine issue type and set appropriate response
+                      if (labels.includes('bug') || issueTitle.includes('[bug]:')) {
+                        issueComment = `**Thank you for reporting this bug!**
+                        We appreciate you taking the time to provide detailed information about the issue you've encountered. Our team will investigate this bug and work on a fix as soon as possible.
+
+                        Thank you for helping us improve our software!`;
+
+                      } else if (labels.includes('enhancement') || issueTitle.includes('[feature]:')) {
+                        issueComment = `**Thank you for your feature request!**
+                        We're excited to hear your ideas for improving our project. Feature requests from our community are valuable and help shape the future direction of our software.
+
+                        Thank you for contributing to our project's growth!`;
+
+                      } else if (labels.includes('question') || issueTitle.includes('[question]:')) {
+                        issueComment = `**Sorry, you have published question in wrong tab!**
+                        Questions are handled in Discussions, not the issue tracker.
+                        Please close this issue and ask there instead.`;
+
+                      } else {
+                        // Generic response for unclassified issues
+                        issueComment = `**Thank you for opening this issue!**
+                        We appreciate you taking the time to improve our project. Our team will review and respond soon.
+
+                        Thank you for using our software!`;
+                      }
+
+                      // Post the comment
+                      await github.rest.issues.createComment({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: issueComment
+                      });
+
+                      // Add reaction to show the bot has processed the issue
+                      await github.rest.reactions.createForIssue({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        content: 'eyes'
+                      });

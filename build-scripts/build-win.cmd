@@ -7,13 +7,13 @@ python -m nuitka ^
     --mode="app" ^
     --output-filename="pyguard" ^
     --windows-icon-from-ico="assets/app/icon.ico" ^
-    --include-package="commands" ^
-    --follow-import-to="commands" ^
-    --include-data-files="commands/obfuscation/obfuscate.py=commands/obfuscation/obfuscate.py" ^
-    --include-data-files="commands/obfuscation/obfuscatelegacy.py=commands/obfuscation/obfuscatelegacy.py" ^
-    --include-data-files="commands/basic/help.py=commands/basic/help.py" ^
-    --include-data-files="commands/basic/info.py=commands/basic/info.py" ^
-    --include-data-files="commands/basic/dependencies.py=commands/basic/dependencies.py" ^
+    --include-package="src/commands" ^
+    --follow-import-to="src/commands" ^
+    --include-data-files="src/commands/obfuscation/obfuscate.py=commands/obfuscation/obfuscate.py" ^
+    --include-data-files="src/commands/obfuscation/obfuscatelegacy.py=commands/obfuscation/obfuscatelegacy.py" ^
+    --include-data-files="src/commands/basic/help.py=commands/basic/help.py" ^
+    --include-data-files="src/commands/basic/info.py=commands/basic/info.py" ^
+    --include-data-files="src/commands/basic/dependencies.py=commands/basic/dependencies.py" ^
     --company-name="ByteCorum" ^
     --product-name="pyguard" ^
     --file-version="3.0.1.0" ^

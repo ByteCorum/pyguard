@@ -9,6 +9,11 @@ python -m nuitka \
     --linux-icon="assets/app/icon.png" \
     --include-data-files="src/commands/basic/*.py=commands/basic/" \
     --include-data-files="src/commands/obfuscation/*.py=commands/obfuscation/" \
+    --include-module="utils.langMgr" \
+    --include-module="utils.crypto" \
+    --include-module="utils.logger" \
+    --include-module="utils.obfuscation" \
+    --include-module="utils.optionsParser" \
     --linux-app-license="GPL v3" \
     --company-name="ByteCorum" \
     --product-name="pyguard" \

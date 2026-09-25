@@ -1,5 +1,5 @@
 from sys import argv, exit
-from os import walk, path
+from os import walk, path, getcwd
 from inspect import isclass, isabstract
 from importlib.util import spec_from_file_location, module_from_spec
 
@@ -43,10 +43,10 @@ class PyGuard:
         except Exception as error:
             Log.Fail(f"Options parsing failed: {error}", True)
 
-    def GetCommand(self, name) -> Command:
+    def GetCommand(self, name:str) -> Command:
         command: Command = self.SearchCommand(name, f"{path.dirname(path.abspath(__file__))}/commands/")
         if not command:
-            raise Exception(f"invalid command name: \"{name}\".")
+            raise Exception(f"invalid command name: \"{name.lower()}\".")
 
         return command
 
@@ -73,6 +73,7 @@ class PyGuard:
 
                         except Exception as error:
                             # Skip files that can't be imported
+                            #print(error)
                             continue
         return None
 

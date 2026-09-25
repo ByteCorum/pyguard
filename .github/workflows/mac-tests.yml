@@ -61,7 +61,6 @@ jobs:
                   name: pyguard-macos_${{ steps.vars.outputs.sha_short }}
                   path: |
                       pyguard
-                      com.*.pyguard*
 
     obfuscation-multifile-macos:
         name: Multi-file Obfuscation MacOS

@@ -154,3 +154,5 @@ pyvenv/
 .vscode/
 obfuscated/
 src/test.py
+pyguard
+tmp-exec/

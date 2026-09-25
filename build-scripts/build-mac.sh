@@ -10,6 +10,11 @@ python -m nuitka \
     --macos-app-icon="assets/app/icon.icns" \
     --include-data-files="src/commands/basic/*.py=commands/basic/" \
     --include-data-files="src/commands/obfuscation/*.py=commands/obfuscation/" \
+    --include-module="utils.langMgr" \
+    --include-module="utils.crypto" \
+    --include-module="utils.logger" \
+    --include-module="utils.obfuscation" \
+    --include-module="utils.optionsParser" \
     --company-name="ByteCorum" \
     --product-name="pyguard" \
     --file-version="3.0.1.0" \

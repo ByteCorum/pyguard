@@ -1,231 +1,281 @@
-name: Windows tests
+---
+name: Windows Tests
 
 on:
     push:
-        branches: [stable, WIP]
     pull_request:
-        branches: [stable, WIP]
+        branches: [stable]
+
+permissions:
+    contents: read
 
 jobs:
     build:
+        name: Build Test Windows
         runs-on: windows-latest
+        outputs:
+            sha_short: ${{ steps.vars.outputs.sha_short }}
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Check out code from GitHub
+              uses: actions/checkout@v7
 
             - name: Set up Python
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v7
               with:
-                  python-version: "3.12"
+                  python-version: "3.14"
 
             - name: Install dependencies
+              shell: bash
               run: |
-                  python -m pip install --upgrade pip
-                  pip install -r requirements.txt
+                  python3 -m pip install --upgrade pip
+                  pip3 install -r requirements.txt
 
             - name: Build Executable
-              working-directory: src
               run: |
-                  .\build-win.cmd
+                  .\build-scripts\build-win.cmd
 
-            - name: Archive Executable
-              uses: actions/upload-artifact@v4
+            - name: Verify build outputs
+              shell: bash
+              run: |
+                  expected=(
+                      "pyguard.exe"
+                  )
+
+                  for file in "${expected[@]}"; do
+                      if [[ ! -f "$file" ]]; then
+                          echo "::error::Build output missing: $file"
+                          exit 1
+                      else
+                          echo "OK: $file"
+                      fi
+                  done
+
+            - name: Compute Commit SHA
+              id: vars
+              shell: bash
+              run: |
+                  echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+            - name: Archive artifact
+              uses: actions/upload-artifact@v7
               with:
-                  name: dotpyguard-win
-                  path: src\dotpyguard.exe
+                  name: pyguard-win_${{ steps.vars.outputs.sha_short }}
+                  path: |
+                      pyguard.exe
 
     obfuscation-multifile:
+        name: Multi-file Obfuscation Windows
         needs: ["build"]
         runs-on: windows-latest
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Check out code from GitHub
+              uses: actions/checkout@v7
 
             - name: Set up Python
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v7
               with:
-                  python-version: "3.12"
+                  python-version: "3.14"
 
-            - name: Install Dependencies
+            - name: Install dependencies
+              shell: bash
               run: |
-                  python -m pip install --upgrade pip
-                  pip install -r requirements.txt
+                  python3 -m pip install --upgrade pip
+                  pip3 install -r requirements.txt
 
             - name: Download Executable
-              uses: actions/download-artifact@v4
+              uses: actions/download-artifact@v8
               with:
-                  name: dotpyguard-win
+                  name: pyguard-win_${{ needs.build.outputs.sha_short }}
                   path: "examples"
 
-            - name: Preparation For Tests
+            - name: Preparation For Test
               working-directory: examples
+              shell: bash
               run: |
-                  move "dotpyguard.exe" "multifile"
-                  Remove-Item -Path "multifile\obfuscated" -Recurse -Force
+                  mv pyguard.exe multifile/
+                  rm -rf multifile/obfuscated
 
-            - name: Obfuscation
-              working-directory: examples\multifile
+            - name: Obfuscation Test
+              working-directory: examples/multifile
+              shell: bash
               run: |
-                  .\dotpyguard.exe obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input --files lib.py main.py
+                  ./pyguard.exe obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input --files lib.py main.py
 
-            - name: Testing
-              working-directory: examples\multifile\obfuscated
+            - name: Testing Results
+              working-directory: examples/multifile/obfuscated
+              shell: bash
               run: |
-                  $OUTPUT = $(python main.py)
-                  Write-Host "Output: "
-                  Write-Host $OUTPUT
+                  OUTPUT=$(python main.py)
+                  echo "Output: $OUTPUT"
 
-                  Write-Host "Result: "
-                  if ($OUTPUT -eq "hello world") {
-                    Write-Host "Success: main.py output contains 'hello world'"
-                  } else {
-                    Write-Host "Failure: main.py output does not contain 'hello world'"
+                  echo "Result: "
+                  if [ "$OUTPUT" = "hello world" ]; then
+                    echo "Success: main.py output contains 'hello world'"
+                  else
+                    echo "Failure: main.py output does not contain 'hello world'"
                     exit 1
-                  }
+                  fi
 
     obfuscation-onefile:
+        name: One-file Obfuscation Windows
         needs: ["build"]
         runs-on: windows-latest
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Check out code from GitHub
+              uses: actions/checkout@v7
 
             - name: Set up Python
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v7
               with:
-                  python-version: "3.12"
+                  python-version: "3.14"
 
-            - name: Install Dependencies
+            - name: Install dependencies
+              shell: bash
               run: |
-                  python -m pip install --upgrade pip
-                  pip install -r requirements.txt
+                  python3 -m pip install --upgrade pip
+                  pip3 install -r requirements.txt
 
             - name: Download Executable
-              uses: actions/download-artifact@v4
+              uses: actions/download-artifact@v8
               with:
-                  name: dotpyguard-win
+                  name: pyguard-win_${{ needs.build.outputs.sha_short }}
                   path: "examples"
 
-            - name: Preparation For Tests
+            - name: Preparation For Test
               working-directory: examples
+              shell: bash
               run: |
-                  move "dotpyguard.exe" "onefile"
-                  Remove-Item -Path "onefile\obfuscated" -Recurse -Force
+                  mv pyguard.exe onefile/
+                  rm -rf onefile/obfuscated
 
-            - name: Obfuscation
-              working-directory: examples\onefile
+            - name: Obfuscation Test
+              working-directory: examples/onefile
+              shell: bash
               run: |
-                  .\dotpyguard.exe obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input main.py
+                  ./pyguard.exe obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input main.py
 
-            - name: Testing
-              working-directory: examples\onefile\obfuscated
+            - name: Testing Results
+              working-directory: examples/onefile/obfuscated
+              shell: bash
               run: |
-                  $OUTPUT = $(python main.py)
-                  Write-Host "Output: "
-                  Write-Host $OUTPUT
+                  OUTPUT=$(python main.py)
+                  echo "Output: $OUTPUT"
 
-                  Write-Host "Result: "
-                  if ($OUTPUT -eq "hello world") {
-                    Write-Host "Success: main.py output contains 'hello world'"
-                  } else {
-                    Write-Host "Failure: main.py output does not contain 'hello world'"
+                  echo "Result: "
+                  if [ "$OUTPUT" = "hello world" ]; then
+                    echo "Success: main.py output contains 'hello world'"
+                  else
+                    echo "Failure: main.py output does not contain 'hello world'"
                     exit 1
-                  }
+                  fi
 
     obfuscationlegacy-multifile:
+        name: Multi-file Legacy Obfuscation Windows
         needs: ["build"]
         runs-on: windows-latest
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Check out code from GitHub
+              uses: actions/checkout@v7
 
             - name: Set up Python
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v7
               with:
-                  python-version: "3.12"
+                  python-version: "3.14"
 
-            - name: Install Dependencies
+            - name: Install dependencies
+              shell: bash
               run: |
-                  python -m pip install --upgrade pip
-                  pip install -r requirements.txt
+                  python3 -m pip install --upgrade pip
+                  pip3 install -r requirements.txt
 
             - name: Download Executable
-              uses: actions/download-artifact@v4
+              uses: actions/download-artifact@v8
               with:
-                  name: dotpyguard-win
+                  name: pyguard-win_${{ needs.build.outputs.sha_short }}
                   path: "examples"
 
-            - name: Preparation For Tests
+            - name: Preparation For Test
               working-directory: examples
+              shell: bash
               run: |
-                  move "dotpyguard.exe" "multifile-legacy"
-                  Remove-Item -Path "multifile-legacy\obfuscated" -Recurse -Force
+                  mv pyguard.exe multifile-legacy/
+                  rm -rf multifile-legacy/obfuscated
 
-            - name: Obfuscation
-              working-directory: examples\multifile-legacy
+            - name: Obfuscation Test
+              working-directory: examples/multifile-legacy
+              shell: bash
               run: |
-                  .\dotpyguard obfuscatelegacy --no-input --mode 3 --loops 6 --files lib.py,main.py
+                  ./pyguard.exe obfuscatelegacy --no-input --mode 4 --loops 6 --files lib.py,main.py
 
-            - name: Testing
-              working-directory: examples\multifile-legacy\obfuscated
+            - name: Testing Results
+              working-directory: examples/multifile-legacy/obfuscated
+              shell: bash
               run: |
-                  $OUTPUT = $(python main.py)
-                  Write-Host "Output: "
-                  Write-Host $OUTPUT
+                  OUTPUT=$(python main.py)
+                  echo "Output: $OUTPUT"
 
-                  Write-Host "Result: "
-                  if ($OUTPUT -eq "hello world") {
-                    Write-Host "Success: main.py output contains 'hello world'"
-                  } else {
-                    Write-Host "Failure: main.py output does not contain 'hello world'"
+                  echo "Result: "
+                  if [ "$OUTPUT" = "hello world" ]; then
+                    echo "Success: main.py output contains 'hello world'"
+                  else
+                    echo "Failure: main.py output does not contain 'hello world'"
                     exit 1
-                  }
+                  fi
 
     obfuscationlegacy-onefile:
+        name: One-file Legacy Obfuscation Windows
         needs: ["build"]
         runs-on: windows-latest
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Check out code from GitHub
+              uses: actions/checkout@v7
 
             - name: Set up Python
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v7
               with:
-                  python-version: "3.12"
+                  python-version: "3.14"
 
-            - name: Install Dependencies
+            - name: Install dependencies
+              shell: bash
               run: |
-                  python -m pip install --upgrade pip
-                  pip install -r requirements.txt
+                  python3 -m pip install --upgrade pip
+                  pip3 install -r requirements.txt
 
             - name: Download Executable
-              uses: actions/download-artifact@v4
+              uses: actions/download-artifact@v8
               with:
-                  name: dotpyguard-win
+                  name: pyguard-win_${{ needs.build.outputs.sha_short }}
                   path: "examples"
 
-            - name: Preparation For Tests
+            - name: Preparation For Test
               working-directory: examples
+              shell: bash
               run: |
-                  move "dotpyguard.exe" "onefile-legacy"
-                  Remove-Item -Path "onefile-legacy\obfuscated" -Recurse -Force
+                  mv pyguard.exe onefile-legacy/
+                  rm -rf onefile-legacy/obfuscated
 
-            - name: Obfuscation
-              working-directory: examples\onefile-legacy
+            - name: Obfuscation Test
+              working-directory: examples/onefile-legacy
+              shell: bash
               run: |
-                  .\dotpyguard obfuscatelegacy --no-input --mode 4 --loops 6 --files main.py
+                  ./pyguard.exe obfuscatelegacy --no-input --mode 4 --loops 6 --files main.py
 
-            - name: Testing
-              working-directory: examples\onefile-legacy\obfuscated
+            - name: Testing Results
+              working-directory: examples/onefile-legacy/obfuscated
+              shell: bash
               run: |
-                  $OUTPUT = $(python main.py)
-                  Write-Host "Output: "
-                  Write-Host $OUTPUT
+                  OUTPUT=$(python main.py)
+                  echo "Output: $OUTPUT"
 
-                  Write-Host "Result: "
-                  if ($OUTPUT -eq "hello world") {
-                    Write-Host "Success: main.py output contains 'hello world'"
-                  } else {
-                    Write-Host "Failure: main.py output does not contain 'hello world'"
+                  echo "Result: "
+                  if [ "$OUTPUT" = "hello world" ]; then
+                    echo "Success: main.py output contains 'hello world'"
+                  else
+                    echo "Failure: main.py output does not contain 'hello world'"
                     exit 1
-                  }
+                  fi

@@ -1,4 +1,4 @@
-from dotpyguard import DotPyGuard
+from pyguard import PyGuard
 
 if __name__ == "__main__":
-    DotPyGuard()
+    PyGuard()

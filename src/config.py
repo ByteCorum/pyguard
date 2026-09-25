@@ -1,8 +1,8 @@
 from abc import ABC
 
-NAME = ".PyGuard"
+NAME = "pyguard"
 AUTHOR = "ByteCorum"
-URL = "https://github.com/ByteCorum/.PyGuard"
+URL = "https://github.com/ByteCorum/pyguard"
 VERSION = "3.1.0.0"
 DESCRIPTION = "Tool/Library for Python used to obfuscate and protect your code in static and runtime from decompilation, reverse debug, etc. Also, can prevent detection by antiviruses."
 

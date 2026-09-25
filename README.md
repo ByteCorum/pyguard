@@ -2,7 +2,7 @@
 
 <p align="center">
 <img src="assets/banner.png">
-<img src="https://img.shields.io/badge/.PyGuard-v3.0.0.0-blue?style=for-the-badge&logo=&logoColor=whit">
+<img src="https://img.shields.io/badge/pyguard-v3.0.0.0-blue?style=for-the-badge&logo=&logoColor=whit">
 <img src="https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue">
 <img src="https://img.shields.io/badge/VSCode-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white">
 <img src="https://img.shields.io/badge/tests-6/6-76B900?style=for-the-badge&logo=&logoColor=whit">
@@ -15,7 +15,7 @@
 
 ---
 
-### 🛡.PyGuard🛡
+### 🛡pyguard🛡
 
 Tool/Library for Python used to obfuscate and protect your code in static and runtime from decompilation, reverse debug, etc. Also, can prevent detection by antiviruses.
 
@@ -23,10 +23,10 @@ Tool/Library for Python used to obfuscate and protect your code in static and ru
 
 ### 💻Supported Platforms💻
 
--   Python 3 up to latest
--   Windows
--   All Linux distributions
--   Mac OS
+- Python 3 up to latest
+- Windows
+- All Linux distributions
+- Mac OS
 
 ---
 
@@ -34,27 +34,27 @@ Tool/Library for Python used to obfuscate and protect your code in static and ru
 
 > **Static & Runtime Protection**
 >
-> -   Total advanced static and runtime protection from decompilation, reverse debug, etc.
+> - Total advanced static and runtime protection from decompilation, reverse debug, etc.
 
 > **Hash Variables**
 >
-> -   Hash all variables and constants values in fragment of code.
-> -   Protects variables and constants content.
+> - Hash all variables and constants values in fragment of code.
+> - Protects variables and constants content.
 
 > **Recursive obfuscation**
 >
-> -   Recurseve encrypt fragment of code using base64 and zlib n times.
-> -   Best way to decrease/prevent antiviruses detection.
+> - Recurseve encrypt fragment of code using base64 and zlib n times.
+> - Best way to decrease/prevent antiviruses detection.
 
 > **Best encryption algorithms**
 >
-> -   Fernet, AES-GCM, ChaCha20, Salsa20
-> -   Symmetric cipher which offer strong confidentiality, and provide authentication and integrity to protect against tampering.
+> - Fernet, AES-GCM, ChaCha20, Salsa20
+> - Symmetric cipher which offer strong confidentiality, and provide authentication and integrity to protect against tampering.
 
 > **File Integrity Protection**
 >
-> -   Protect files against modification.
-> -   Advanced file hash/content integrity check and comparison.
+> - Protect files against modification.
+> - Advanced file hash/content integrity check and comparison.
 
 ---
 
@@ -62,7 +62,7 @@ Tool/Library for Python used to obfuscate and protect your code in static and ru
 
 1. Clone repo
     ```
-    git clone https://github.com/ByteCorum/.PyGuard.git
+    git clone https://github.com/ByteCorum/pyguard.git
     ```
 2. Install requirements
     ```
@@ -70,21 +70,21 @@ Tool/Library for Python used to obfuscate and protect your code in static and ru
     ```
 3. Usage info
     ```
-    dotpyguard --help
+    pyguard --help
     ```
 4. Example
     ```
-    dotpyguard obfuscate --hashdata --aes --chacha --follow-imports main.py
+    pyguard obfuscate --hashdata --aes --chacha --follow-imports main.py
     ```
 5. Output
     ```
-    #Obfuscated by .PyGuard 3.1.0.0
-    from DotPyGuard.script_55958136 import DotPyGuard, _
-    _(DotPyGuard(b'x\x9c\x05\xc1\xc7\xa2k@\x00\x00\xd0\x0f\xb2P\xa3,\xdeB\...')
+    #Obfuscated by pyguard 3.1.0.0
+    from PyGuard.script_55958136 import PyGuard, _
+    _(PyGuard(b'x\x9c\x05\xc1\xc7\xa2k@\x00\x00\xd0\x0f\xb2P\xa3,\xdeB\...')
     ```
 6. Example legacy
     ```
-    dotpyguard obfuscatelegacy --loops 3 --mode 2 --file code.py
+    pyguard obfuscatelegacy --loops 3 --mode 2 --file code.py
     ```
 7. Output legacy
     ```
@@ -95,7 +95,7 @@ Tool/Library for Python used to obfuscate and protect your code in static and ru
 
 ### 📜Additional Info📜
 
-> [!NOTE]  
+> [!NOTE]
 > Obfuscation tool has 2 major versions legacy and main. This repo includes both of them, but we highly recommend you to use the main version, cuz it much more secure. Anyway, we won't end support of legacy version, so if u have issues, let us know.
 
 > [!TIP]

@@ -3,9 +3,11 @@ name: Yamllint Check
 
 on:
     push:
-        branches: [stable, main, master]
     pull_request:
-        branches: [stable, main, master]
+        branches: [stable]
+
+permissions:
+    contents: read
 
 jobs:
     yamlcheck:

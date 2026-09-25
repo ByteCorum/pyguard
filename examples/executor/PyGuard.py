@@ -11,7 +11,7 @@ from sys import exit
 
 _ = exec
 
-class DotPyGuard:
+class PyGuard:
     def __init__(self, code, file):
         try:
             self.__codee812520fd9c71232668515d6bd91bd4c386f014e41cc3bdd9262101759019196 = code

@@ -13,7 +13,8 @@ project-excludes = [
     "**/.venv/**",
     "**/pyvenv/**",
     "**/.pyvenv/**",
-    "**/__pycache__/**"
+    "**/__pycache__/**",
+    "examples/"
 ]
 
 search-path = ["src"]

@@ -1,0 +1,1 @@
+./pyguard obfuscatelegacy --no-input --mode 4 --loops 6 --files lib.py,main.py

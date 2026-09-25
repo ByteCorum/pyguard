@@ -1,0 +1,1 @@
+./pyguard obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input main.py

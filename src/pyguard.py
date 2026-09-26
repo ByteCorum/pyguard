@@ -73,7 +73,7 @@ class PyGuard:
 
                         except Exception as error:
                             # Skip files that can't be imported
-                            #print(error)
+                            Log.Warning(f"Command module skipped: {path}: {error}")
                             continue
         return None
 

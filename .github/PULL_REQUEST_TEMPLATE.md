@@ -39,7 +39,7 @@
 
 ## Checklist
 
-- [ ] I've read and agree with the [Code of Conduct](https://github.com/{VAR_USERNAME}/{VAR_REPO}/blob/{VAR_MAIN_BRANCH}/docs/CODE_OF_CONDUCT.md)
-- [ ] My code meets the requirements in [CONTRIBUTING.md](https://github.com/{VAR_USERNAME}/{VAR_REPO}/blob/{VAR_MAIN_BRANCH}/docs/CONTRIBUTING.md)
+- [ ] I've read and agree with the [Code of Conduct](https://github.com/ByteCorum/pyguard/blob/stable/docs/CODE_OF_CONDUCT.md)
+- [ ] My code meets the requirements in [CONTRIBUTING.md](https://github.com/ByteCorum/pyguard/blob/stable/docs/CONTRIBUTING.md)
 - [ ] I have performed a self-review of my own code
 - [ ] I have made corresponding changes to the documentation

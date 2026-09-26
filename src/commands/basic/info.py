@@ -2,10 +2,10 @@ from utils.logger import Log
 from config import Command, NAME, VERSION, AUTHOR, URL, DESCRIPTION
 
 class Info(Command):
-    exclusiveOptions = [["--all", "--version", "--url", "--description"]]
-    requiredOptions = [["--all", "--version", "--url", "--description"]]
+    exclusiveOptions: list[str | list[str]] = [["--all", "--version", "--url", "--description"]]
+    requiredOptions: list[str | list[str]] = [["--all", "--version", "--url", "--description"]]
 
-    options = {
+    options: dict[str , bool | int | str | list[str]] = {
         "--log": "",
         "--no-color": False,
 
@@ -35,7 +35,7 @@ Options:
   --url*`           -> show URL of program's github repo.
   --description*`   -> show description of the program.'''
 
-    def __init__(self):
+    def __init__(self) -> None:
         if self.options["--all"]:
             Log.Custom(f"{NAME} version {VERSION}\nby {AUTHOR}\n{DESCRIPTION}\nRepo: {URL}", bypassQuiet=True)
 

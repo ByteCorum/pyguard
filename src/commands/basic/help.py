@@ -23,4 +23,4 @@ General Options:
   --no-input        -> disable prompting for input.'''
 
     def __init__(self, command: Command) -> None:
-        Log.Custom(command.help)
+        Log.Custom(command.help, bypassQuiet=True)

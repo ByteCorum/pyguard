@@ -36,7 +36,7 @@ class OptionsParser:
                 raise Exception(f"invalid option: \"{option}\".")
 
             # Gives value of an option to check whether it has default value or smt else
-            if OptionsParser.CheckOptionValue(self.command.options[option]):
+            if OptionsParser.__CheckOptionValue(self.command.options[option]):
                 Log.Warning(f"Value overridden, \"{option}\" have been already defined.")
 
             # If it's bool just set it to true
@@ -75,7 +75,7 @@ class OptionsParser:
 
                     for opt in option:
                         # Gives value of an option to check whether it has default value or smt else
-                        if OptionsParser.CheckOptionValue(self.command.options[opt]):
+                        if OptionsParser.__CheckOptionValue(self.command.options[opt]):
                             inited = True
                             break
 
@@ -85,7 +85,8 @@ class OptionsParser:
                 # One particular option
                 else:
                     # Gives value of an option to check whether it has default value or smt else
-                    if not OptionsParser.CheckOptionValue(self.command.options[option]):
+                    # pyrefly: ignore [bad-index] - option can not be list cuz already checked
+                    if not OptionsParser.__CheckOptionValue(self.command.options[option]):
                         raise Exception(f"missing required option: \"{option}\".")
 
         if self.command.exclusiveOptions:
@@ -93,15 +94,14 @@ class OptionsParser:
                 state: list[bool] = []# state of option 0(off), 1(on)
                 for option in group:
                     # Gives value of an option to check whether it has default value or smt else
-                    state.append(OptionsParser.CheckOptionValue(self.command.options[option]))
+                    state.append(OptionsParser.__CheckOptionValue(self.command.options[option]))
 
                 #More than 1 only if more than one are on =)
                 if sum(state) > 1:
                     raise Exception(f"some options can't be used together: \"{", ".join(group)}\".")
 
     @staticmethod
-    # pyrefly: ignore [implicit-any-parameter] - option can be basically any type, that's why there is a check below
-    def CheckOptionValue(option) -> bool:
+    def __CheckOptionValue(option: bool|int|str|list[str]) -> bool:
         match type(option).__name__:
             case "bool":
                 if option == False: return False

@@ -108,16 +108,16 @@ class PyGuard:
 
     # TODO: global vars should be defined globally, not in every command
     def SetGlobalVars(self) -> None:
-        if "--log" in self.command.options:
+        if "--log" in self.command.options and type(self.command.options["--log"]) == str:
             Log.logFile = self.command.options["--log"]
 
-        if "--quiet" in self.command.options:
+        if "--quiet" in self.command.options and type(self.command.options["--quiet"]) == bool:
             Log.quiet = self.command.options["--quiet"]
 
-        if "--no-color" in self.command.options:
+        if "--no-color" in self.command.options and type(self.command.options["--no-color"]) == bool:
             Log.colored = not self.command.options["--no-color"]
 
-        if "--no-input" in self.command.options:
+        if "--no-input" in self.command.options and type(self.command.options["--no-input"]) == bool:
             Log.noInput = self.command.options["--no-input"]
 
     def RunCommand(self) -> None:

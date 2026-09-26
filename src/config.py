@@ -8,14 +8,20 @@ VERSION:str  = "3.1.0.0"
 DESCRIPTION:str  = "Tool/Library for Python used to obfuscate and protect your code in static and runtime from decompilation, reverse debug, etc. Also, can prevent detection by antiviruses."
 
 COMMANDS_DIR:str = f"{path.dirname(path.abspath(__file__))}/commands/"
+DEPENDENCIES:list[str]  = ["cryptography", "pycryptodome", "cython", "nuitka", "colorama", "types-colorama","setuptools"]
 
 class Command(ABC):
     def __init__ (self) -> None:
         ...
 
-    exclusiveOptions: list
-    requiredOptions: list
-    options: dict
+    exclusiveOptions: list[str | list[str]]
+    requiredOptions: list[str | list[str]]
+    options: dict[str , bool | int | str | list[str]] = {
+        "--quiet": False,
+        "--log": "",
+        "--no-color ": False,
+        "--no-input": False,
+        }
     help: str
 
 # class Name_of_the_command(Command): #note: only first letter should be capital

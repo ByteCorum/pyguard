@@ -106,8 +106,8 @@ class PyGuard:
                             continue
         return None
 
-
-    def SetGlobalVars(self):
+    # TODO: global vars should be defined globally, not in every command
+    def SetGlobalVars(self) -> None:
         if "--log" in self.command.options:
             Log.logFile = self.command.options["--log"]
 
@@ -120,8 +120,8 @@ class PyGuard:
         if "--no-input" in self.command.options:
             Log.noInput = self.command.options["--no-input"]
 
-    def RunCommand(self):
-        Log.Info(f"{NAME}\n", True)
+    def RunCommand(self) -> None:
+        Log.Info(f"{NAME}\n")
         try:
             # pyrefly: ignore [not-callable] - this is required, cuz pyrefly can't check not directly imported command
             self.command()

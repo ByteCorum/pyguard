@@ -9,6 +9,7 @@ Link the matching issue when one exists: `[ ] #42 ...`
 ## Planned
 
 - [ ] Publish as python lib | P:1 | S:m
+- [ ] Global vars should be defined globally, not in every command | P:3 | S:l | Not affect functionality, only code quality
 
 ## Feature Ideas
 

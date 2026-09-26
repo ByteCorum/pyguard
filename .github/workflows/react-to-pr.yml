@@ -7,6 +7,7 @@ on:
 
 permissions:
     contents: read
+    pull-requests: write
 
 jobs:
     auto-reply:
@@ -46,6 +47,18 @@ jobs:
                         repo: context.repo.repo,
                         body: prComment
                       });
+
+                      // Attach label "status: needs-triage" to PR
+                      const labels = ['status: needs-triage'];
+                      const existing = context.payload.pull_request.labels.map(l => l.name);
+                      if (!labels.some(l => existing.includes(l))) {
+                        await github.rest.issues.addLabels({
+                          issue_number: context.issue.number,
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          labels,
+                        });
+                      }
 
                       // Add reaction to show the bot has processed the issue
                       await github.rest.reactions.createForIssue({

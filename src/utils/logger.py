@@ -65,7 +65,9 @@ class Log:
         else:
             response:str = "ignored"
 
-        Log.WriteLog(response)
+        if Log.logFile:
+            Log.WriteLog(response)
+
         return response
 
     @staticmethod

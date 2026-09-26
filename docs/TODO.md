@@ -10,6 +10,7 @@ Link the matching issue when one exists: `[ ] #42 ...`
 
 - [ ] Publish as python lib | P:1 | S:m
 - [ ] Global vars should be defined globally, not in every command | P:3 | S:l | Not affect functionality, only code quality
+- [ ] Add exception handling in places of loud fail instead of default python error | P:0 | S:m
 
 ## Feature Ideas
 
@@ -17,4 +18,4 @@ Link the matching issue when one exists: `[ ] #42 ...`
 
 ## Known Issues
 
--
+- [x] Obfuscation of files from different projects is not supported; use 1 command per project | P:- | S:- | wontfix: by design, the common-root guard rejects unrelated trees to prevent misplaced output and broken dependencies

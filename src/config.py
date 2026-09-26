@@ -16,12 +16,7 @@ class Command(ABC):
 
     exclusiveOptions: list[str | list[str]]
     requiredOptions: list[str | list[str]]
-    options: dict[str , bool | int | str | list[str]] = {
-        "--quiet": False,
-        "--log": "",
-        "--no-color": False,
-        "--no-input": False,
-        }
+    options: dict[str , bool | int | str | list[str]]
     help: str
 
 # class Name_of_the_command(Command): #note: only first letter should be capital

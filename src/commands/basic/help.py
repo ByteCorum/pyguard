@@ -2,6 +2,10 @@ from utils.logger import Log
 from config import Command
 
 class Help(Command):
+    exclusiveOptions: list[str | list[str]] = []
+    requiredOptions: list[str | list[str]] = []
+    options: dict[str , bool | int | str | list[str]] = {}
+
     help = f'''
 Usage:
   pyguard <command> [options]

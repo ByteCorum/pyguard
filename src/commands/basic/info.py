@@ -1,4 +1,4 @@
-from utils.logger import Log, Fore
+from utils.logger import Log
 from config import Command, NAME, VERSION, AUTHOR, URL, DESCRIPTION
 
 class Info(Command):
@@ -37,13 +37,13 @@ Options:
 
     def __init__(self):
         if self.options["--all"]:
-            Log.Custom(f"{NAME} version {VERSION}\nby {AUTHOR}\n{DESCRIPTION}\nRepo: {Fore.BLUE if Log.colored else ""}{URL}{Fore.RESET}")
+            Log.Custom(f"{NAME} version {VERSION}\nby {AUTHOR}\n{DESCRIPTION}\nRepo: {URL}", bypassQuiet=True)
 
         elif self.options["--version"]:
-            Log.Custom(f"{NAME} version {VERSION}")
+            Log.Custom(f"{NAME} version {VERSION}", bypassQuiet=True)
 
         elif self.options["--url"]:
-            Log.Custom(f"Repo: {Fore.BLUE if Log.colored else ""}{URL}{Fore.RESET}")
+            Log.Custom(f"Repo: {URL}", bypassQuiet=True)
 
         elif self.options["--description"]:
-            Log.Custom(f"{DESCRIPTION}")
+            Log.Custom(f"{DESCRIPTION}", bypassQuiet=True)

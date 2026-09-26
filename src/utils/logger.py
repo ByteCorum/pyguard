@@ -2,77 +2,72 @@ from colorama import Fore
 from sys import exit
 
 class Log:
-    logFile = ""
-    quiet = False
-    noInput = False
-    colored = True
+    logFile: str = ""
+    quiet: bool = False
+    noInput: bool = False
+    colored: bool = True
 
     @staticmethod
-    def Show(prefix, message, color):
-        if Log.colored:
-            print(f"{color}{prefix}{Fore.RESET}{message}")
-        else:
-            print(f"{prefix}{message}")
-
-    @staticmethod
-    def WriteLog(message):
+    def __Show(prefix: str, message: str, prefixColor: str =Fore.RESET, msgColor: str =Fore.RESET, end: str = '\n') -> None:
         if Log.logFile:
-            try:
-                with open(Log.logFile, "a") as file:
-                    file.write(f"{message}\n")
-            except Exception as error:
-                Log.logFile = ""
-                Log.Warning(f"Logging skipped: {error}", True)
+            Log.WriteLog(f"{prefix}{message}", end)
+        if Log.colored:
+            print(f"{prefixColor}{prefix}{Fore.RESET}{msgColor}{message}{Fore.RESET}", end=end)
+        else:
+            print(f"{prefix}{message}", end=end)
 
     @staticmethod
-    def Info(message, bypassQuiet=False):
-        Log.WriteLog(f"[i]{message}")
+    def WriteLog(message: str, end: str = '\n') -> None:
+        try:
+            with open(Log.logFile, "a") as file:
+                file.write(f"{message}{end}")
+        except Exception as error:
+            Log.logFile = ""
+            Log.Warning(f"Logging skipped: {error}", True)
+
+    @staticmethod
+    def Info(message: str, bypassQuiet: bool =False) -> None:
         if Log.quiet and not bypassQuiet:
             return
-        Log.Show("[i]", message, Fore.CYAN)
+        Log.__Show("[i]", message, prefixColor=Fore.CYAN)
 
     @staticmethod
-    def Warning(message, pause=False):
-        Log.WriteLog(f"[!]{message}")
+    def Warning(message: str, pause: bool =False) -> None:
         if Log.quiet and not pause:
             return
-        Log.Show("[!]", message, Fore.YELLOW)
 
+        Log.__Show("[!]", message, prefixColor=Fore.YELLOW)
         if pause and not Log.noInput:
-            input("Press Enter to continue...")
+            input("Press any key to continue...")
 
     @staticmethod
-    def Fail(message, fatal=False):
-        Log.WriteLog(f"[x]{message}")
-        Log.Show("[x]", message, Fore.RED)
+    def Fail(message: str, fatal: bool =False) -> None:
+        Log.__Show("[x]", message, prefixColor=Fore.RED)
         if fatal:
-            exit(-1)
+            exit(1)
 
     @staticmethod
-    def Success(message):
-        Log.WriteLog(f"[+]{message}")
-        Log.Show("[+]", message, Fore.GREEN)
+    def Success(message: str) -> None:
+        Log.__Show("[+]", message, prefixColor=Fore.GREEN)
 
     @staticmethod
-    def Question(message) -> str:
-        Log.WriteLog(f"[?]{message}")
-        if Log.noInput:
-            Log.WriteLog(">>> {ignored}")
-            return "ignore"
+    def Question(message: str) -> str:
+        if Log.quiet and Log.noInput:
+            return "ignored"
 
-        if Log.colored:
-            print(f"{Fore.BLUE}[?]{Fore.RESET}{message}")
-            response = input(f"{Fore.BLUE}>>> {Fore.RESET}")
+        Log.__Show("[?]", message, prefixColor=Fore.BLUE)
+        Log.__Show(">>>", " ", prefixColor=Fore.BLUE, end='')
+
+        if not Log.noInput:
+            response:str = input()
         else:
-            print(f"[?]{message}")
-            response = input(f">>> ")
+            response:str = "ignored"
 
-        Log.WriteLog(f">>> {response}")
+        Log.WriteLog(response)
         return response
 
     @staticmethod
-    def Custom(message, color = Fore.RESET, bypassQuiet=False):
-        Log.WriteLog(message)
+    def Custom(message: str, color: str =Fore.RESET, bypassQuiet: bool =False, end: str ='\n') -> None:
         if Log.quiet and not bypassQuiet:
             return
-        Log.Show("", message, color)
+        Log.__Show("", message, msgColor=color, end=end)

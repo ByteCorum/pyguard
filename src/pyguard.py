@@ -1,5 +1,5 @@
 from sys import argv, exit
-from os import walk, path, getcwd
+from os import walk, path
 from inspect import isclass, isabstract
 from importlib.util import spec_from_file_location, module_from_spec
 
@@ -9,10 +9,10 @@ from config import Command, NAME
 
 
 class PyGuard:
-    command: Command = None
-    helpCmd: Command = None
+    command: Command | None = None
+    helpCmd: Command | None = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         try:
             self.helpCmd = self.GetCommand("Help")
             self.ParseArgs()

@@ -1,6 +1,7 @@
 ## Description
 
 <!-- A clear and concise description of what this PR changes and why. -->
+<!-- If this PR introduces breaking changes, state them here first, before the general description. (**BREAKING CHANGE**) -->
 
 ## Related Items
 
@@ -12,12 +13,16 @@
 
 <!-- Mark the applicable options with an "x". -->
 
-- [ ] Bug fix (non-breaking change that fixes an issue)
-- [ ] New feature (non-breaking change that adds functionality)
-- [ ] Breaking change (fix or feature that alters existing behavior)
-- [ ] Documentation change
-- [ ] Refactoring (no functional changes)
-- [ ] Chore (dependencies, tooling, CI, configuration, code maintenance)
+- [ ] Bug fix (change that fixes an issue)
+- [ ] New feature (change that adds functionality)
+- [ ] Documentation (change that applies only to documentation)
+- [ ] Style (formatting, whitespace; no logic change)
+- [ ] Refactoring (code change that neither fixes nor adds a feature)
+- [ ] Performance improvement (change that improves performance)
+- [ ] Test (change that applies only to tests)
+- [ ] Build (change that applies to build system or dependencies)
+- [ ] CI (change that applies to CI configuration or workflows)
+- [ ] Revert (revert of a previous commit)
 - [ ] Other (please describe below)
 
 ## Additional Context

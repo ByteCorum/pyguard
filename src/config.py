@@ -1,12 +1,18 @@
 from abc import ABC
+from os import path
 
-NAME = "pyguard"
-AUTHOR = "ByteCorum"
-URL = "https://github.com/ByteCorum/pyguard"
-VERSION = "3.1.0.0"
-DESCRIPTION = "Tool/Library for Python used to obfuscate and protect your code in static and runtime from decompilation, reverse debug, etc. Also, can prevent detection by antiviruses."
+NAME:str  = "pyguard"
+AUTHOR:str = "ByteCorum"
+URL:str  = "https://github.com/ByteCorum/pyguard"
+VERSION:str  = "3.1.0.0"
+DESCRIPTION:str  = "Tool/Library for Python used to obfuscate and protect your code in static and runtime from decompilation, reverse debug, etc. Also, can prevent detection by antiviruses."
+
+COMMANDS_DIR:str = f"{path.dirname(path.abspath(__file__))}/commands/"
 
 class Command(ABC):
+    def __init__ (self) -> None:
+        ...
+
     exclusiveOptions: list
     requiredOptions: list
     options: dict

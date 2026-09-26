@@ -2,11 +2,11 @@ from utils.logger import Log
 from config import Command
 
 class OptionsParser:
-    def __init__(self, argv, command: Command):
-        self.argv = argv
-        self.argc = len(self.argv)
-        self.command = command
-        self.helpCalled = False# handles the --help command with the highest priority
+    def __init__(self, argv: list[str], command: Command):
+        self.argv: list[str] = argv
+        self.argc: int = len(self.argv)
+        self.command: Command = command
+        self.helpCalled: bool = False # handles the --help command with the highest priority
 
     def Parse(self):
         if "--help" in self.argv:
@@ -99,5 +99,3 @@ class OptionsParser:
                 raise Exception(f"unsupported \"{option}\" type.")
 
         return True
-
-

@@ -2,10 +2,6 @@ from utils.logger import Log
 from config import Command
 
 class Help(Command):
-    exclusiveOptions = []
-    requiredOptions = []
-    options = {}
-
     help = f'''
 Usage:
   pyguard <command> [options]
@@ -26,7 +22,5 @@ General Options:
   --no-color        -> suppress colored output.
   --no-input        -> disable prompting for input.'''
 
-    def __init__(self, command: Command = None):
-        if command == None:
-            command = self
+    def __init__(self, command: Command) -> None:
         Log.Custom(command.help)

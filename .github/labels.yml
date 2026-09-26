@@ -14,7 +14,10 @@
   description: "Usage question belongs in Discussions"
 - name: "type: maintenance"
   color: bf9b18
-  description: "Maintenance work that neither adds features nor fixes bugs"
+  description: "Maintenance/Refactor/Performance work that neither adds features nor fixes bugs"
+- name: "type: other"
+  color: afafaf
+  description: "Change not covered by any existing type"
 
 # Status
 - name: "status: done"
@@ -71,6 +74,9 @@
 - name: "security"
   color: b60205
   description: "Security-related change or report"
+- name: "revert"
+  color: b60205
+  description: "Revert of a previous PR"
 - name: "ai-marked"
   color: b60205
   description: "AI-generated contribution"

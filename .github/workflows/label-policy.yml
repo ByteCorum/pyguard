@@ -33,7 +33,7 @@ jobs:
                       // Policy tables (keep in sync with labels.yml)
 
                       // Labels that may not appear on issues
-                      const prOnly = ['type: maintenance', 'ai-marked'];
+                      const prOnly = ['type: maintenance', 'ai-marked', 'revert'];
 
                       // Labels that may not appear on PRs
                       const issueOnly = ['type: question'];

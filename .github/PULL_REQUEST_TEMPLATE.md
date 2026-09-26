@@ -48,3 +48,5 @@
 - [ ] My code meets the requirements in [CONTRIBUTING.md](https://github.com/ByteCorum/pyguard/blob/stable/docs/CONTRIBUTING.md)
 - [ ] I have performed a self-review of my own code
 - [ ] I have made corresponding changes to the documentation
+
+<!--Don't forget to assign the appropriate labels -->

@@ -23,7 +23,7 @@ class PyGuard:
         except Exception as error:
             Log.Fail(f"Fatal error occurred: {error}", True)
 
-    def ParseArgs(self):
+    def ParseArgs(self) -> None:
         try:
             # Call should contain at least executable path and command name
             if len(argv) < 2:
@@ -40,15 +40,16 @@ class PyGuard:
         try:
             # Only initialize parser
             parser = OptionsParser(argv[2:], self.command)
-            # Parses
-            parser.Parse()
+            # Parses and fills values in self.command's options dict
+            parser.InitCommandParams()
 
+            # Highest priority for help
             if parser.helpCalled:
                 # pyrefly: ignore [not-callable] - this is required, cuz pyrefly can't check not directly imported command
                 self.helpCmd(self.command)
                 exit(0)
 
-            parser.Validate()
+            parser.ValidateParams()
 
         except Exception as error:
             Log.Fail(f"Options parsing failed: {error}", True)

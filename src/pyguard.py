@@ -108,16 +108,20 @@ class PyGuard:
 
     # TODO: global vars should be defined globally, not in every command
     def SetGlobalVars(self) -> None:
-        if "--log" in self.command.options and type(self.command.options["--log"]) == str:
+        if "--log" in self.command.options:
+            # pyrefly: ignore [bad-assignment] - if --log is not a str program must loudly fail
             Log.logFile = self.command.options["--log"]
 
-        if "--quiet" in self.command.options and type(self.command.options["--quiet"]) == bool:
+        if "--quiet" in self.command.options:
+            # pyrefly: ignore [bad-assignment] - if --quiet is not a bool program must loudly fail
             Log.quiet = self.command.options["--quiet"]
 
-        if "--no-color" in self.command.options and type(self.command.options["--no-color"]) == bool:
+        if "--no-color" in self.command.options:
+            # if --no-color is not a bool program must loudly fail
             Log.colored = not self.command.options["--no-color"]
 
-        if "--no-input" in self.command.options and type(self.command.options["--no-input"]) == bool:
+        if "--no-input" in self.command.options:
+            # pyrefly: ignore [bad-assignment] - if --no-input is not a bool program must loudly fail
             Log.noInput = self.command.options["--no-input"]
 
     def RunCommand(self) -> None:

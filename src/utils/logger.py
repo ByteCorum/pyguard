@@ -47,7 +47,9 @@ class Log:
             exit(1)
 
     @staticmethod
-    def Success(message: str) -> None:
+    def Success(message: str, bypassQuiet: bool =False) -> None:
+        if Log.quiet and not bypassQuiet:
+            return
         Log.__Show("[+]", message, prefixColor=Fore.GREEN)
 
     @staticmethod

@@ -10,8 +10,7 @@ class Dependencies(Command):
     options: dict[str , bool | int | str | list[str]] = {
         "--quiet": False,
         "--log": "",
-        "--no-color ": False,
-        "--no-input": False,
+        "--no-color": False,
 
         "--show": False,
         "--install": False,
@@ -34,7 +33,6 @@ Options:
   --quiet           -> give less output.
   --log <path>      -> write all logs to a file.
   --no-color        -> suppress colored output.
-  --no-input        -> disable prompting for input.
 
   --show*`          -> show all dependencies of the program.
   --install*`       -> install all dependencies of the program.

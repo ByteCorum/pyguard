@@ -11,7 +11,7 @@ class Obfuscate(Command):
     options = {
         "--quiet": False,
         "--log": "",
-        "--no-color ": False,
+        "--no-color": False,
         "--no-input": False,
 
         "--hashdata": False,
@@ -66,7 +66,7 @@ Options:
         self.CheckOptions()
         self.ObfuscateFiles()
         self.obfuscation.CreateExecutor(self.options["--output"])
-        Log.Success("Obfuscation compleated")
+        Log.Success("Obfuscation completed", bypassQuiet=True)
 
     def InitVars(self):
         self.workingDir = getcwd()

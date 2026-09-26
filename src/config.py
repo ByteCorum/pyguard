@@ -19,7 +19,7 @@ class Command(ABC):
     options: dict[str , bool | int | str | list[str]] = {
         "--quiet": False,
         "--log": "",
-        "--no-color ": False,
+        "--no-color": False,
         "--no-input": False,
         }
     help: str
@@ -36,7 +36,7 @@ class Command(ABC):
 #         #General Options
 #         "--quiet": False,
 #         "--log": "",
-#         "--no-color ": False,
+#         "--no-color": False,
 #         "--no-input": False,
 #
 #         #Your Options

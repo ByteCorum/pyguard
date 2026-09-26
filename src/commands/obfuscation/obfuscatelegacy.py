@@ -6,12 +6,11 @@ from utils.obfuscation import LegacyObfuscation
 from utils.langMgr import RemoveComments
 
 class Obfuscatelegacy(Command):
-    exclusiveOptions = []
-    requiredOptions = ["--loops", "--mode", ["--files", "--dirs"]]
-    options = {
+    requiredOptions: list[str | list[str]] = ["--loops", "--mode", ["--files", "--dirs"]]
+    options: dict[str , bool | int | str | list[str]] = {
         "--quiet": False,
         "--log": "",
-        "--no-color ": False,
+        "--no-color": False,
         "--no-input": False,
 
         "--loops": 0,
@@ -44,11 +43,11 @@ Options:
   --files <path>*   -> files for obfuscation(required files or/and dir).
   --output <path>   -> output dir.'''
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.InitVars()
         self.CheckOptions()
         self.ObfuscateFiles()
-        Log.Success("Legacy obfuscation compleated")
+        Log.Success("Legacy obfuscation compleated", bypassQuiet=True)
 
     def InitVars(self):
         self.workingDir = getcwd()

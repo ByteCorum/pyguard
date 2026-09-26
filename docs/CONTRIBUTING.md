@@ -30,18 +30,19 @@ TODO
 
 ## Making Changes
 
-1. Fork the repository and create a branch from `stable`. Branch naming: `feat/<short-name>`, `fix/<short-name>`, `docs/<short-name>`, `chore/<short-name>`.
-2. Make your change. One logical change per pull request, split unrelated changes into separate PRs.
-3. Make separate commits for logically separate changes; do not mix formatting-only changes with logic changes in one commit.
-4. Ensure the linter and formatter pass, and all tests pass locally.
-5. Squash or rebase your branch so each commit is meaningful; PRs with a clean history are merged as-is.
-6. Open a pull request following the [pull request template](../.github/PULL_REQUEST_TEMPLATE.md).
+1. Fork the repository and create a branch from `stable`.
+2. Branch naming and commit style must match the requirements described below in **Commit Style** and **Branch Naming** sections.
+3. Make your change. One logical change per pull request, split unrelated changes into separate PRs.
+4. Within a PR, make separate commits for logically distinct steps; each commit should leave the code in a working state.
+5. Ensure the linter and formatter pass, and all tests pass locally.
+6. Keep your history clean: if every commit is meaningful, the PR is merged as a merge commit; otherwise it will be squashed. Rebase is used only for small changes.
+7. Open a pull request following the [pull request template](../.github/PULL_REQUEST_TEMPLATE.md).
 
 ## Commit Style
 
 This project follows the [Conventional Commits](https://www.conventionalcommits.org/)
 
-specification:
+Specification:
 
 ```
 <type>(<optional scope>): <description>
@@ -59,21 +60,21 @@ Rules:
 
 Types:
 
-| Type     | Purpose                                           | SemVer effect |
-| -------- | ------------------------------------------------- | ------------- |
-| feat     | New feature for the user                          | MINOR         |
-| fix      | Bug fix for the user                              | PATCH         |
-| docs     | Documentation only                                | none          |
-| style    | Formatting, whitespace; no logic change           | none          |
-| refactor | Code change that neither fixes nor adds a feature | none          |
-| perf     | Performance improvement                           | PATCH         |
-| test     | Adding or correcting tests                        | none          |
-| build    | Build system or dependencies                      | none          |
-| ci       | CI configuration and workflows                    | none          |
-| chore    | Maintenance; anything not covered above           | none          |
-| revert   | Revert a previous commit                          | as target     |
+| Type     | Purpose                                           | SemVer effect               |
+| -------- | ------------------------------------------------- | --------------------------- |
+| feat     | New feature for the user                          | MINOR                       |
+| fix      | Bug fix for the user                              | PATCH                       |
+| docs     | Documentation only                                | none                        |
+| style    | Formatting, whitespace; no logic change           | none                        |
+| refactor | Code change that neither fixes nor adds a feature | none                        |
+| perf     | Performance improvement                           | PATCH                       |
+| test     | Adding or correcting tests                        | none                        |
+| build    | Build system or dependencies                      | none                        |
+| ci       | CI configuration and workflows                    | none                        |
+| chore    | Maintenance; anything not covered above           | none                        |
+| revert   | Revert a previous commit                          | same as the reverted commit |
 
-`feat` and `fix` with a `!` (or a `BREAKING CHANGE:` footer) produce a MAJOR release.
+`feat` and `fix` with a `!` (or a `BREAKING CHANGE:` footer) indicate a MAJOR release.
 
 Examples:
 
@@ -84,6 +85,26 @@ docs: correct branch name in CONTRIBUTING
 refactor(core)!: change public signature of parseInput
 
 BREAKING CHANGE: parseInput no longer accepts raw strings
+```
+
+## Branch Naming
+
+Branch naming rules follow the commit styling rules.
+
+- Branch names should follow this pattern: `<type>(<optional scope>)/<short-description>`
+- Imperative, present tense ("add", not "added"), no trailing period, no more than 45 characters
+- If this branch relates to an issue, reference it (`#123`)
+- If this branch introduces breaking changes, mark them in the commit messages and PR description (`!` or `BREAKING CHANGE` right after **Description** header); the branch name itself does not carry the marker.
+
+Permitted types are listed in the **Types** table in the **Commit Style** section.
+
+Examples:
+
+```
+feat(auth)/token-refresh
+fix(api)/doubleclick-duplicate-submissions
+docs(readme)/fix-typo
+refactor(core)/public-signature-parseInput
 ```
 
 ## Labels

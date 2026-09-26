@@ -1,0 +1,58 @@
+# .yamllint Configuration for yamllint (https://yamllint.readthedocs.io/)
+# Purpose: Enforces YAML correctness and consistent style
+# Install: pip install yamllint
+# Usage: yamllint .
+
+---
+extends: default
+
+yaml-files:
+    - "*.yaml"
+    - "*.yml"
+    - ".yamllint"
+    - ".pre-commit-config.yaml"
+
+ignore:
+    - /.venv/
+    - /.pyvenv/
+    - /node_modules/
+
+rules:
+    key-duplicates:
+        level: error
+    truthy:
+        check-keys: false # required for GitHub Actions "on:" key
+        level: error
+    new-lines:
+        type: unix # reject CRLF for cross-platform teams
+        level: error
+    indentation:
+        spaces: 4
+        indent-sequences: true
+        level: error
+    trailing-spaces:
+        level: error
+    new-line-at-end-of-file:
+        level: error
+
+    line-length:
+        max: 120
+        level: warning # long URLs and action refs will exceed 80
+    document-start:
+        present: true
+        level: warning
+    empty-values:
+        level: warning
+    comments:
+        min-spaces-from-content: 1
+        require-starting-space: true
+        ignore-shebangs: true
+        level: warning
+    brackets:
+        max-spaces-inside: 1
+        level: warning
+    hyphens:
+        max-spaces-after: 1
+        level: warning
+
+    key-ordering: disable

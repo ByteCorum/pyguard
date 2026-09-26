@@ -3,7 +3,7 @@ name: Feature Request
 description: Suggest an idea or improvement.
 title: "[Feature]: "
 labels: ["type: enhancement", "status: needs-triage"]
-assignees: ["{VAR_USERNAME}"]
+assignees: ["ByteCorum"]
 body:
     - type: textarea
       id: problem
@@ -42,7 +42,7 @@ body:
                 required: true
               - label: This is not implemented in the latest version.
                 required: true
-              - label: I've read and agree with the [Code of Conduct](https://github.com/{VAR_USERNAME}/{VAR_REPO}/blob/{VAR_MAIN_BRANCH}/docs/CODE_OF_CONDUCT.md)
+              - label: I've read and agree with the [Code of Conduct](https://github.com/ByteCorum/pyguard/blob/stable/docs/CODE_OF_CONDUCT.md)
                 required: true
-              - label: It doesn't overlap with existing items in the [Todo List](https://github.com/{VAR_USERNAME}/{VAR_REPO}/blob/{VAR_MAIN_BRANCH}/docs/TODO.md)
+              - label: It doesn't overlap with existing items in the [Todo List](https://github.com/ByteCorum/pyguard/blob/stable/docs/TODO.md)
                 required: true

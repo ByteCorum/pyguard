@@ -3,7 +3,7 @@ name: Documentation Issue
 description: Report errors, gaps, or unclear parts of the documentation.
 title: "[Docs]: "
 labels: ["type: documentation", "status: needs-triage"]
-assignees: ["{VAR_USERNAME}"]
+assignees: ["ByteCorum"]
 body:
     - type: input
       id: location
@@ -33,5 +33,5 @@ body:
           options:
               - label: I have searched existing issues and found no duplicate.
                 required: true
-              - label: I've read and agree with the [Code of Conduct](https://github.com/{VAR_USERNAME}/{VAR_REPO}/blob/{VAR_MAIN_BRANCH}/docs/CODE_OF_CONDUCT.md)
+              - label: I've read and agree with the [Code of Conduct](https://github.com/ByteCorum/pyguard/blob/stable/docs/CODE_OF_CONDUCT.md)
                 required: true

@@ -8,7 +8,7 @@ Please choose the channel that matches your situation, it gets you a faster answ
 
 ## Asking Questions
 
-Usage questions are answered in [Discussions](https://github.com/{VAR_USERNAME}/{VAR_REPO}/discussions/new?category=q-a), not the issue tracker.
+Usage questions are answered in [Discussions](https://github.com/ByteCorum/pyguard/discussions/new?category=q-a), not the issue tracker.
 
 Help us help you. Before asking:
 
@@ -19,13 +19,13 @@ Help us help you. Before asking:
 
 ## Reporting a Bug
 
-Suspected defects are reported via the [issue templates](https://github.com/{VAR_USERNAME}/{VAR_REPO}/issues/new/choose).
+Suspected defects are reported via the [issue templates](https://github.com/ByteCorum/pyguard/issues/new/choose).
 
-Use **Bug Report** and fill in every section. Search [existing issues](https://github.com/{VAR_USERNAME}/{VAR_REPO}/issues) first, including closed ones.
+Use **Bug Report** and fill in every section. Search [existing issues](https://github.com/ByteCorum/pyguard/issues) first, including closed ones.
 
 ## Requesting a Feature
 
-Use the **Feature Request** template at [issues](https://github.com/{VAR_USERNAME}/{VAR_REPO}/issues/new/choose).
+Use the **Feature Request** template at [issues](https://github.com/ByteCorum/pyguard/issues/new/choose).
 Describe the problem you are trying to solve, not only the solution.
 
 ## Documentation Issues
@@ -34,11 +34,11 @@ Errors and gaps in the documentation are reported with the **Documentation Issue
 
 ## Security Vulnerabilities
 
-Do not open a public issue. Report via Security and quality [tab](https://github.com/{VAR_USERNAME}/{VAR_REPO}/security/advisories/new). Reports are handled privately and responsibly.
+Do not open a public issue. Report via Security and quality [tab](https://github.com/ByteCorum/pyguard/security/advisories/new). Reports are handled privately and responsibly.
 
 ## Contact author
 
-Current contact options are listed in the [owner profile](https://github.com/{VAR_USERNAME})
+Current contact options are listed in the [owner profile](https://github.com/ByteCorum)
 
 ## What Not to Do
 

@@ -23,9 +23,9 @@ class Obfuscatelegacy(Command):
 
     help = f'''
 Usage:
-  dotpyguard obfuscatelegacy [options]
+  pyguard obfuscatelegacy [options]
 Example:
-  dotpyguard obfuscatelegacy --loops 3 --mode 2 --file code.py
+  pyguard obfuscatelegacy --loops 3 --mode 2 --file code.py
 
 Notes:
   *                 -> required option.

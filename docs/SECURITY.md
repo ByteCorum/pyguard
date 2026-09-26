@@ -10,9 +10,9 @@ We take the security of this project seriously. If you believe you have found a 
 
 The preferred channel is private vulnerability reporting:
 
-[Report a vulnerability](https://github.com/{VAR_USERNAME}/{VAR_REPO}/security/advisories/new)
+[Report a vulnerability](https://github.com/ByteCorum/pyguard/security/advisories/new)
 
-This creates a private communication channel between you and the maintainers. Alternatively, contact owners with the details via {VAR_CONTACT_LINK}.
+This creates a private communication channel between you and the maintainers. Alternatively, contact owners with the details via [contact link](https://smp11.simplex.im/a#2K6caIvN6vHcobLgCcgkbRAliN1Jv7Ud1UQ-jueqhZ8) or via contact option listed in [profile](https://github.com/ByteCorum).
 
 You should receive an acknowledgment within 72 hours. If you do not, please follow up to confirm we received the original report.
 

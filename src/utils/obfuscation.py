@@ -100,8 +100,8 @@ class MainObfuscation:
 
     def Wrap(self, content: bytes) -> str:
         content = f'''#Obfuscated by {NAME} {VERSION}
-from DotPyGuard.script_{self.number} import DotPyGuard, _
-_(DotPyGuard({content}, __file__)._)'''
+from PyGuard.script_{self.number} import PyGuard, _
+_(PyGuard({content}, __file__)._)'''
 
         return content
 
@@ -134,7 +134,7 @@ from sys import exit
 
 _ = exec
 
-class DotPyGuard:
+class PyGuard:
     def __init__(self, code, file):
         try:
             self.__code{secret} = code
@@ -238,7 +238,7 @@ class DotPyGuard:
             string = decompress(raw[1]).decode("utf-8")
             self.__code{secret} = self.__code{secret}.replace(raw[0], string)''' if self.hashdata else ""}
 '''
-        outputDir =f"{outputDir}/DotPyGuard"
+        outputDir =f"{outputDir}/PyGuard"
         makedirs(outputDir)
 
         if self.encExec:
@@ -261,7 +261,7 @@ ext_modules = [
 ]
 
 setup(
-    name='.PyGuard',
+    name='pyguard',
     version='{VERSION}',
     author='{AUTHOR}',
     ext_modules=cythonize(

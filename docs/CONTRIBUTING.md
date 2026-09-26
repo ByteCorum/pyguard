@@ -9,9 +9,9 @@ By participating in this project, you agree to abide by the [Code of Conduct](./
 Before opening an issue or PR, check the right channel
 In particular:
 
-- Usage questions go to [Discussions](https://github.com/{VAR_USERNAME}/{VAR_REPO}/discussions/new?category=q-a), not the issue tracker
-- Security vulnerabilities go to , never to a public issue. [Report a vulnerability](https://github.com/{VAR_USERNAME}/{VAR_REPO}/security/advisories/new)
-- Bugs and features go through the [issue templates](https://github.com/{VAR_USERNAME}/{VAR_REPO}/issues/new/choose)
+- Usage questions go to [Discussions](https://github.com/ByteCorum/pyguard/discussions/new?category=q-a), not the issue tracker
+- Security vulnerabilities go to , never to a public issue. [Report a vulnerability](https://github.com/ByteCorum/pyguard/security/advisories/new)
+- Bugs and features go through the [issue templates](https://github.com/ByteCorum/pyguard/issues/new/choose)
 - More extensive guide how to get help and support described in [SUPPORT.md](./SUPPORT.md)
 
 ## Environment Setup
@@ -30,7 +30,7 @@ TODO
 
 ## Making Changes
 
-1. Fork the repository and create a branch from `{VAR_MAIN_BRANCH}`. Branch naming: `feat/<short-name>`, `fix/<short-name>`, `docs/<short-name>`, `chore/<short-name>`.
+1. Fork the repository and create a branch from `stable`. Branch naming: `feat/<short-name>`, `fix/<short-name>`, `docs/<short-name>`, `chore/<short-name>`.
 2. Make your change. One logical change per pull request, split unrelated changes into separate PRs.
 3. Make separate commits for logically separate changes; do not mix formatting-only changes with logic changes in one commit.
 4. Ensure the linter and formatter pass, and all tests pass locally.

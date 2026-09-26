@@ -113,12 +113,12 @@ Labels are defined in [labels.yml](../.github/labels.yml) and applied automatica
 
 The axes:
 
-- **Type:** what kind of work: `type: bug`, `type: enhancement`, `type: documentation`, `type: maintenance` (one per item)
+- **Type:** what kind of work: `type: bug`, `type: enhancement`, `type: documentation`, `type: maintenance` (one per item), `type: other` can be assigned additionally if change is not covered by any existing type
 - **Status:** pipeline state: `status: needs-triage`, `status: in-progress`, `status: blocked`, `status: needs-info`, `status: suspended`, `status: done` (one per item; applied by maintainers, not contributors)
 - **Priority:** `priority: 0` (highest, work immediately) through `priority: 3` (low; when time permits). One per item.
 - **Size** `size: S` / `size: M` / `size: L` / `size: XL`. One per item. These match the TODO.md tags (`S:<s|m|l|xl>`, lowercase there, uppercase in labels).
 
-Additional markers: `security`, `breaking-change`, `invalid`, `duplicate`, `wontfix`.
+Additional markers: `security`, `breaking-change`, `invalid`, `duplicate`, `wontfix`, `revert`.
 
 ## AI-Generated Changes
 

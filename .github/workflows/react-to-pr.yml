@@ -60,7 +60,6 @@ jobs:
                         });
                       }
 
-
                       // Add reaction to show the bot has processed the issue
                       await github.rest.reactions.createForIssue({
                         issue_number: pr.number,

@@ -57,7 +57,7 @@ class OptionsParser:
                     self.command.options[option] = value
                 elif expectedValueType == int:
                     self.command.options[option] = int(value)
-                elif expectedValueType == list[str]:
+                elif expectedValueType == list:
                     self.command.options[option] = value.split(",")
                 else:
                     raise Exception(f"internal error: expectedValueType({expectedValueType}) doesn't match any known type")
@@ -115,7 +115,7 @@ class OptionsParser:
             if option == 0:
                 return False
 
-        elif optionType == list[str]:
+        elif optionType == list:
             if option == []:
                 return False
         else:

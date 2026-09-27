@@ -102,8 +102,8 @@ Options:
                         # This should never happen
                         Log.Fail("Invalid response. Please enter 'y' or 'n'\n")
 
-        if type(self.options["--files"]) != list[str]:
-            raise Exception(f"invalid \"--files\" variable type: must be \"list[str]\", but it's \"{type(self.options["--files"])}\"")
+        if type(self.options["--files"]) != list:
+            raise Exception(f"invalid \"--files\" variable type: must be \"list\", but it's \"{type(self.options["--files"])}\"")
 
         for i in range (len(self.options["--files"])):
             file:str = self.options["--files"][i]
@@ -113,8 +113,8 @@ Options:
             self.options["--files"][i] = path.abspath(file)
             Log.Info(f"Included file: {self.options["--files"][i]}")
 
-        if type(self.options["--dirs"]) != list[str]:
-            raise Exception(f"invalid \"--dirs\" variable type: must be \"list[str]\", but it's \"{type(self.options["--dirs"])}\"")
+        if type(self.options["--dirs"]) != list:
+            raise Exception(f"invalid \"--dirs\" variable type: must be \"list\", but it's \"{type(self.options["--dirs"])}\"")
 
         for i in range(len(self.options["--dirs"])):
             dir:str = self.options["--dirs"][i]

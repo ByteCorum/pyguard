@@ -1,11 +1,10 @@
-from os import path, sep, walk, getcwd, makedirs
+from typing import override
+from os import path, walk, getcwd, makedirs
 from shutil import rmtree
 from utils.logger import Log
 from config import Command
 from utils.obfuscation import LegacyObfuscation
 from utils.langMgr import RemoveComments
-
-# !!! TODO refactor this file
 
 class Obfuscatelegacy(Command):
     exclusiveOptions: list[str | list[str]] = []
@@ -47,52 +46,51 @@ Options:
   --output <path>   -> output dir'''
 
     def __init__(self) -> None:
-        self.cwd:str = getcwd()
+        Log.Info("Legacy obfuscation")
 
-        self.CheckOptions()
-
-        # pyrefly: ignore [no-matching-overload, unsupported-operation]
-        self.commonPath:str = path.commonpath(self.options["--files"]+self.options["--dirs"])
-
-        pathParts: list[str] = self.commonPath.split(path.sep)
-        if self.commonPath == path.sep or len(pathParts) <= 2:
-            Log.Warning(f"Computed common root \"{self.commonPath}\" is suspiciously shallow; the paths appear to come from unrelated trees", pause=True)
-
+        self.SetGlobals()
+        self.ValidateParams()
         self.ObfuscateFiles()
 
         Log.Success("Legacy obfuscation completed", bypassQuiet=True)
 
-    def CheckOptions(self) -> None:
-        Log.Info("Legacy obfuscation")
+    def SetGlobals(self) -> None:
+        self.cwd:str = getcwd()
+        self.commonPath:str = "."
 
-        # pyrefly: ignore [unsupported-operation] - if --loops is not an int program must loudly fail
+    @override
+    def ValidateParams(self) -> None:
+        if type(self.options["--loops"]) != int:
+            raise Exception(f"invalid \"--loops\" variable type: must be \"int\", but it's \"{type(self.options["--loops"])}\"")
         if self.options["--loops"] < 1:
             raise Exception("Invalid --loops value")
 
-        # pyrefly: ignore [unsupported-operation] - if --mode is not an int program must loudly fail
+        if type(self.options["--mode"]) != int:
+            raise Exception(f"invalid \"--mode\" variable type: must be \"int\", but it's \"{type(self.options["--mode"])}\"")
         if self.options["--mode"] < 1 or self.options["--mode"] > 4:
             raise Exception("Invalid --mode value")
 
+        if type(self.options["--output"]) != str:
+            raise Exception(f"invalid \"--output\" variable type: must be \"str\", but it's \"{type(self.options["--output"])}\"")
         if not self.options["--output"]:
             self.options["--output"] = "obfuscated"
 
-        # pyrefly: ignore [no-matching-overload] - if --output is not a string program must loudly fail
-        if path.exists(path.join(self.cwd,self.options["--output"])):
-            Log.Warning(f"Output directory already exists: \"{self.options['--output']}\"")
+        outputPath:str = path.join(self.cwd, self.options["--output"])
+        if path.exists(outputPath):
+            Log.Warning(f"Output directory already exists: \"{outputPath}\"")
+
             response = ""
             while response != "y" or response != "n" or response != "ignored":
                 response:str = Log.Question("Override directory? (y/n)").lower()
 
                 match response:
                     case "ignored":
-                        # pyrefly: ignore [bad-argument-type] - if --output is not a string program must loudly fail
-                        rmtree(self.options["--output"])
+                        rmtree(outputPath)
                         Log.Info("Directory overridden\n")
                         break
 
                     case "y":
-                        # pyrefly: ignore [bad-argument-type] - if --output is not a string program must loudly fail
-                        rmtree(self.options["--output"])
+                        rmtree(outputPath)
                         Log.Success("Directory overridden\n")
                         break
 
@@ -101,39 +99,43 @@ Options:
                         break
 
                     case _:
+                        # This should never happen
                         Log.Fail("Invalid response. Please enter 'y' or 'n'\n")
 
-        # pyrefly: ignore [bad-argument-type] - if --files is not a list program must loudly fail
+        if type(self.options["--files"]) != list[str]:
+            raise Exception(f"invalid \"--files\" variable type: must be \"list[str]\", but it's \"{type(self.options["--files"])}\"")
+
         for i in range (len(self.options["--files"])):
-            # pyrefly: ignore [bad-index] - if --files is not a list program must loudly fail
             file:str = self.options["--files"][i]
             if not path.exists(file) or not path.isfile(file) or not file.endswith(".py"):
                 raise Exception(f"Invalid file path: \"{file}\"")
 
-            # pyrefly: ignore [unsupported-operation]
             self.options["--files"][i] = path.abspath(file)
-            # pyrefly: ignore [bad-index]
             Log.Info(f"Included file: {self.options["--files"][i]}")
 
-        # pyrefly: ignore [bad-argument-type] - if --dirs is not a list program must loudly fail
-        for i in range(len(self.options["--dirs"])):
-            # pyrefly: ignore [bad-index] - if --dirs is not a list program must loudly fail
-            dir:str = self.options["--dirs"][i]
+        if type(self.options["--dirs"]) != list[str]:
+            raise Exception(f"invalid \"--dirs\" variable type: must be \"list[str]\", but it's \"{type(self.options["--dirs"])}\"")
 
+        for i in range(len(self.options["--dirs"])):
+            dir:str = self.options["--dirs"][i]
             if not path.exists(dir) or not path.isdir(dir):
                 raise Exception(f"Invalid directory path: \"{dir}\"")
 
-            # pyrefly: ignore [unsupported-operation]
             self.options["--dirs"][i] = path.abspath(dir)
-            # pyrefly: ignore [bad-index]
             Log.Info(f"Included dir: {self.options['--dirs'][i]}")
+
+        self.commonPath = path.commonpath(self.options["--files"]+self.options["--dirs"])
+
+        pathParts: list[str] = self.commonPath.split(path.sep)
+        if self.commonPath == path.sep or len(pathParts) <= 2:
+            Log.Warning(f"Computed common root \"{self.commonPath}\" is suspiciously shallow; the paths appear to come from unrelated trees", pause=True)
 
         Log.Info(f"Loops amount: {self.options["--loops"]}")
         Log.Info(f"Obfuscation mode: {self.options["--mode"]}")
         Log.Info(f"Output dir: {self.options["--output"]}\n")
 
     def ObfuscateFiles(self) -> None:
-        # pyrefly: ignore [not-iterable] - if --files is not a list program must loudly fail
+        # pyrefly: ignore [not-iterable] - already checked in ValidateParams, self.options["--files"] can only be list[str]
         for file in self.options["--files"]:
             with open(file, "r", encoding="utf-8") as pyFile:
                 context:str = pyFile.read()
@@ -148,15 +150,15 @@ Options:
             context = obfuscator.Encrypt(context)
             context = obfuscator.Wrap(context)
 
-            self.SaveFile(filename, path.relpath(filepath, self.commonPath), context)
+            self.SaveFile(filename, filepath.replace(self.commonPath, ""), context)
 
-        # pyrefly: ignore [not-iterable] - if --dirs is not a list program must loudly fail
+        # pyrefly: ignore [not-iterable] - already checked in ValidateParams, self.options["--dirs"] can only be list[str]
         for dir in self.options["--dirs"]:
             for dirpath, dirnames, filenames in walk(dir):
                 for filename in filenames:
 
                     if filename.endswith(".py"):
-                        with open(dirpath+sep+filename, "r", encoding="utf-8") as file:
+                        with open(path.join(dirpath,filename), "r", encoding="utf-8") as file:
                             context = file.read()
                         if not context:
                             Log.Warning(f"Empty file {filename} in dir {dirpath}")
@@ -168,14 +170,14 @@ Options:
                         context = obfuscator.Encrypt(context)
                         context = obfuscator.Wrap(context)
 
-                        self.SaveFile(filename , path.relpath(dirpath, self.commonPath), context)
+                        self.SaveFile(filename , dirpath.replace(self.commonPath, ""), context)
 
     def SaveFile(self, filename: str, filepath: str, content: str) -> None:
-        # pyrefly: ignore [no-matching-overload] - if --output is not a string program must loudly fail
+        # pyrefly: ignore [no-matching-overload] - already checked in ValidateParams, self.options["--output"] can only be str
         filepath = path.normpath(path.join(self.cwd, self.options["--output"], filepath))
         makedirs(filepath, exist_ok=True)
 
-        with open(filepath+sep+filename, "w", encoding="utf-8") as file:
+        with open(path.join(filepath+filename), "w", encoding="utf-8") as file:
             file.write(content)
 
         Log.Info(f"{filename} saved in {filepath}")

@@ -305,7 +305,7 @@ setup(
         Log.Info(f"Executor script_{self.number}.pyd assembled in {dir}")
 
 class LegacyObfuscation:
-    def __init__(self, mode, loops, separator: str):
+    def __init__(self, mode: int, loops: int, separator: str):
         if mode < 1 or mode > 4:
             raise Exception("Invalid mode value")
         if loops < 1:
@@ -315,7 +315,7 @@ class LegacyObfuscation:
         self.loops = loops
         self.separator = separator
 
-    def Encrypt(self, content) -> str:
+    def Encrypt(self, content: str) -> str:
         for i in range(self.loops):
             match self.mode:
                 case 1:
@@ -331,7 +331,7 @@ class LegacyObfuscation:
 
         return content
 
-    def Wrap(self, content) -> str:
+    def Wrap(self, content: str) -> str:
         match self.mode:
             case 1:
                 return f"#Obfuscated by {NAME} {VERSION}\n_=lambda __:__import__('zlib').decompress(__import__('base64').b64decode((__import__('zlib').decompress(__))[::-1])[::-1]);"+content
@@ -344,61 +344,69 @@ class LegacyObfuscation:
             case _:
                 raise Exception("Invalid mode value")
 
-    def PowerObfuscateion(self, content):
-        content = content.encode('utf-8')
-        content = compress(content)
-        enccontent = b64encode(content)
-        enccontent = enccontent[::-1]
-        enccontent = compress(enccontent)
+    def PowerObfuscateion(self, content: str) -> str:
+        bytestr:bytes = content.encode('utf-8')
+
+        bytestr = compress(bytestr)
+        bytestr = b64encode(bytestr)
+        bytestr = bytestr[::-1]
+        bytestr = compress(bytestr)
 
         key = FernetCipher.GenKey()
-        enccontent = FernetCipher.Encrypt(key,enccontent)+self.separator.encode("utf-8")+b64encode(key)
+        # TODO encode separator with b64encode
+        bytestr = FernetCipher.Encrypt(key,bytestr)+self.separator.encode("utf-8")+b64encode(key)
 
-        enccontent = enccontent[::-1]
-        enccontent = compress(enccontent)
+        bytestr = bytestr[::-1]
+        bytestr = compress(bytestr)
 
-        return f"exec((_)({enccontent}))"
+        return f"exec((_)({bytestr}))"
 
-    def MediumObfuscation(self,content):
-        content = content.encode('utf-8')
-        content = compress(content)
-        content = content[::-1]
+    def MediumObfuscation(self, content: str) -> str:
+        bytestr:bytes = content.encode('utf-8')
 
-        key = FernetCipher.GenKey()
-        enccontent = FernetCipher.Encrypt(key, content)+self.separator.encode("utf-8")+b64encode(key)
+        bytestr = compress(bytestr)
+        bytestr = bytestr[::-1]
 
-        enccontent = enccontent[::-1]
-        enccontent = compress(enccontent)
+        key:bytes = FernetCipher.GenKey()
+        # TODO encode separator with b64encode
+        bytestr = FernetCipher.Encrypt(key, bytestr)+self.separator.encode("utf-8")+b64encode(key)
 
-        return f"exec((_)({enccontent}))"
+        bytestr = bytestr[::-1]
+        bytestr = compress(bytestr)
 
-    def NormalObfuscation(self,content):
-        content = content.encode('utf-8')
-        content = compress(content)
-        content = content[::-1]
+        return f"exec((_)({bytestr}))"
 
-        key = FernetCipher.GenKey()
-        enccontent = FernetCipher.Encrypt(key, content)+self.separator.encode("utf-8")+key
+    def NormalObfuscation(self, content: str) -> str:
+        bytestr:bytes = content.encode('utf-8')
 
-        enccontent = enccontent[::-1]
-        enccontent = compress(enccontent)
+        bytestr = compress(bytestr)
+        bytestr = bytestr[::-1]
 
-        return f"exec((_)({enccontent}))"
+        key:bytes = FernetCipher.GenKey()
+        bytestr = FernetCipher.Encrypt(key, bytestr) + self.separator.encode("utf-8") + key
 
-    def LiteObfuscation(self,content):
-        content = content.encode('utf-8')
-        content = compress(content)
-        content = content[::-1]
+        bytestr = bytestr[::-1]
+        bytestr = compress(bytestr)
 
-        enccontent = b64encode(content)
+        return f"exec((_)({bytestr}))"
 
-        enccontent = enccontent[::-1]
-        enccontent = compress(enccontent)
+    def LiteObfuscation(self, content:str) -> str:
+        bytestr:bytes = content.encode('utf-8')
 
-        return f"exec((_)({enccontent}))"
+        bytestr = compress(bytestr)
+        bytestr = bytestr[::-1]
+
+        bytestr = b64encode(bytestr)
+
+        bytestr = bytestr[::-1]
+        bytestr = compress(bytestr)
+
+        return f"exec((_)({bytestr}))"
 
     @staticmethod
-    def GenSeperator(length = 32):
+    def GenSeperator(length: int = 32) -> str:
+        # TODO resolve this
+        # ? Pointless check and param either add as obfuscationlegacy param or remove
         if length < 12:
             raise Exception("Too short separator")
         return ''.join(choice(ascii_letters+digits) for _ in range(length))

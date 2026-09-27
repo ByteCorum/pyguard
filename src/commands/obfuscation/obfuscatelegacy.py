@@ -156,6 +156,7 @@ Options:
             filepath, filename = path.split(file)
             context = RemoveComments(context)
 
+            # pyrefly: ignore [bad-argument-type] - already checked in ValidateParams self.options["--mode"] and self.options["--loops"] can only be int
             obfuscator = LegacyObfuscation(self.options["--mode"], self.options["--loops"], LegacyObfuscation.GenSeperator())
             context = obfuscator.Encrypt(context)
             context = obfuscator.Wrap(context)
@@ -184,6 +185,7 @@ Options:
 
                         context = RemoveComments(context)
 
+                        # pyrefly: ignore [bad-argument-type] - already checked in ValidateParams self.options["--mode"] and self.options["--loops"] can only be int
                         obfuscator = LegacyObfuscation(self.options["--mode"], self.options["--loops"], LegacyObfuscation.GenSeperator())
                         context = obfuscator.Encrypt(context)
                         context = obfuscator.Wrap(context)

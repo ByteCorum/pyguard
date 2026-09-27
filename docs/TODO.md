@@ -10,7 +10,9 @@ Link the matching issue when one exists: `[ ] #42 ...`
 
 - [ ] Publish as python lib | P:1 | S:m
 - [ ] Global vars should be defined globally, not in every command | P:3 | S:l | Not affect functionality, only code quality
-- [ ] Add exception handling in places of loud fail instead of default python error | P:0 | S:m
+- [x] Add exception handling in places of loud fail instead of default python error | P:0 | S:m
+- [ ] Resolve issue with pointless check and param in `LegacyObfuscation.GenSeperator()` | P:3 | S:s
+- [ ] Add separator encoding with b64encode for `LegacyObfuscation.MediumObfuscation()` and `LegacyObfuscation.PowerObfuscateion()` | P:2 | S:m
 
 ## Feature Ideas
 

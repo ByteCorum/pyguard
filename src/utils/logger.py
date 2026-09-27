@@ -65,8 +65,7 @@ class Log:
         else:
             response:str = "ignored"
 
-        if Log.logFile:
-            Log.WriteLog(response)
+        Log.Custom(response)
 
         return response
 

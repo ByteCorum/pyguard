@@ -24,6 +24,8 @@ def RemoveComments(context: str) -> str:
 
 def GetImports(content: str) -> list [str]:
     imports: list[str] = []
+    # Parse the source content into an abstract syntax tree;
+    # `tree` is type-annotated as a `Module` (the AST's root node).
     tree: Module = parse(content)
 
     for node in walk(tree):

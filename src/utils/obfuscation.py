@@ -105,18 +105,19 @@ _(PyGuard({content}, __file__)._)'''
 
         return content
 
-    def ProtectFile(self, outputDir, filepath):
+    def ProtectFileModifications(self, outputDir, filepath):
         if self.noProtect:
             return
 
-        while filepath.startswith(('\\', '/')):
-            filepath = filepath[1:]
+        # !!! TEMPORARY DISABLED CUZ FILE PATH HANDLING CHANGED !!!
+        # while filepath.startswith(('\\', '/')):
+        #     filepath = filepath[1:]
 
-        with open(f"{outputDir}/{filepath}", "rb") as file:
-            fileHash = sha256(file.read()).hexdigest()
+        # with open(f"{outputDir}/{filepath}", "rb") as file:
+        #     fileHash = sha256(file.read()).hexdigest()
 
-            if [filepath, fileHash] not in self.files:
-                self.files.append([filepath, fileHash])
+        #     if [filepath, fileHash] not in self.files:
+        #         self.files.append([filepath, fileHash])
 
     def CreateExecutor(self, outputDir):
         secret = sha256(''.join(choice(ascii_letters+digits) for _ in range(randint(16,32))).encode("utf-8")).hexdigest()
@@ -305,7 +306,7 @@ setup(
         Log.Info(f"Executor script_{self.number}.pyd assembled in {dir}")
 
 class LegacyObfuscation:
-    def __init__(self, mode: int, loops: int, separator: str):
+    def __init__(self, mode: int, loops: int, separator: str) -> None:
         if mode < 1 or mode > 4:
             raise Exception("Invalid mode value")
         if loops < 1:
@@ -352,7 +353,7 @@ class LegacyObfuscation:
         bytestr = bytestr[::-1]
         bytestr = compress(bytestr)
 
-        key = FernetCipher.GenKey()
+        key:bytes = FernetCipher.GenKey()
         # TODO encode separator with b64encode
         bytestr = FernetCipher.Encrypt(key,bytestr)+self.separator.encode("utf-8")+b64encode(key)
 

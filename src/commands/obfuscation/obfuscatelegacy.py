@@ -48,13 +48,13 @@ Options:
     def __init__(self) -> None:
         Log.Info("Legacy obfuscation")
 
-        self.SetGlobals()
+        self.InitVars()
         self.ValidateParams()
         self.ObfuscateFiles()
 
         Log.Success("Legacy obfuscation completed", bypassQuiet=True)
 
-    def SetGlobals(self) -> None:
+    def InitVars(self) -> None:
         self.commonPath:str
 
     @override
@@ -70,6 +70,8 @@ Options:
         if self.options["--mode"] < 1 or self.options["--mode"] > 4:
             raise Exception("Invalid --mode value")
         Log.Info(f"Obfuscation mode: {self.options["--mode"]}")
+
+        Log.Custom("",end='\n')# Separator
 
         # Files Check
         if type(self.options["--files"]) != list:
@@ -101,9 +103,7 @@ Options:
             self.commonPath = path.dirname(self.options["--files"][0])
         else:
             allPaths: list[str] = self.options["--files"]+self.options["--dirs"]
-            self.commonPath = path.commonpath(allPaths)
-
-            #Example of commonPath: /home/usr/python/pyguard/examples/complex-legacy/
+            self.commonPath = path.commonpath(allPaths) #Example of commonPath: /home/usr/python/pyguard/examples/complex-legacy/
 
         pathParts: list[str] = self.commonPath.split(path.sep)
         if self.commonPath == path.sep or len(pathParts) <= 2:
@@ -120,46 +120,46 @@ Options:
             Log.Warning(f"Output directory already exists: {outputPath}")
 
             response = ""
-            while response != "y" or response != "n" or response != "ignored":
+            while response != "y" and response != "n" and response != "ignored":
                 response:str = Log.Question("Override directory? (y/n)").lower()
 
                 match response:
                     case "ignored":
                         rmtree(outputPath)
-                        Log.Info("Directory overridden\n")
+                        Log.Info("Directory overridden")
                         break
 
                     case "y":
                         rmtree(outputPath)
-                        Log.Success("Directory overridden\n")
+                        Log.Success("Directory overridden")
                         break
 
                     case "n":
-                        Log.Success("Directory skipped\n")
+                        Log.Success("Directory skipped")
                         break
 
                     case _:
-                        # This should never happen
-                        Log.Fail("Invalid response. Please enter 'y' or 'n'\n")
+                        Log.Fail("Invalid response. Please enter 'y' or 'n'")
 
-        Log.Info(f"Output dir: {outputPath}\n")
+        Log.Info(f"Output dir: {outputPath}")
+        Log.Custom("",end='\n')# Separator
 
     def ObfuscateFiles(self) -> None:
         # pyrefly: ignore [not-iterable] - already checked in ValidateParams, self.options["--files"] can only be list[str]
         for file in self.options["--files"]:
             with open(file, "r", encoding="utf-8") as pyFile:
-                context:str = pyFile.read()
-            if not context:
+                content:str = pyFile.read()
+            if not content:
                 Log.Warning(f"File {file} is empty")
                 continue
 
             filepath, filename = path.split(file)
-            context = RemoveComments(context)
+            content = RemoveComments(content)
 
             # pyrefly: ignore [bad-argument-type] - already checked in ValidateParams self.options["--mode"] and self.options["--loops"] can only be int
             obfuscator = LegacyObfuscation(self.options["--mode"], self.options["--loops"], LegacyObfuscation.GenSeperator())
-            context = obfuscator.Encrypt(context)
-            context = obfuscator.Wrap(context)
+            content = obfuscator.Encrypt(content)
+            content = obfuscator.Wrap(content)
 
             # filepath: /home/usr/python/pyguard/examples/complex-legacy/
             # commonpath: /home/usr/python/pyguard/examples/complex-legacy/
@@ -169,7 +169,7 @@ Options:
             # commonpath: /home/usr/python/pyguard/examples/complex-legacy/
             # result: ./dir/dir
 
-            self.SaveFile(filename, path.relpath(filepath, self.commonPath), context)
+            self.SaveFile(filename, path.relpath(filepath, self.commonPath), content)
 
         # pyrefly: ignore [not-iterable] - already checked in ValidateParams, self.options["--dirs"] can only be list[str]
         for dir in self.options["--dirs"]:
@@ -178,20 +178,20 @@ Options:
 
                     if filename.endswith(".py"):
                         with open(path.join(dirpath,filename), "r", encoding="utf-8") as file:
-                            context = file.read()
-                        if not context:
+                            content: str = file.read()
+                        if not content:
                             Log.Warning(f"Empty file {filename} in dir {dirpath}")
                             continue
 
-                        context = RemoveComments(context)
+                        content = RemoveComments(content)
 
                         # pyrefly: ignore [bad-argument-type] - already checked in ValidateParams self.options["--mode"] and self.options["--loops"] can only be int
                         obfuscator = LegacyObfuscation(self.options["--mode"], self.options["--loops"], LegacyObfuscation.GenSeperator())
-                        context = obfuscator.Encrypt(context)
-                        context = obfuscator.Wrap(context)
+                        content = obfuscator.Encrypt(content)
+                        content = obfuscator.Wrap(content)
 
                         #Same as above applies here
-                        self.SaveFile(filename , path.relpath(dirpath, self.commonPath), context)
+                        self.SaveFile(filename , path.relpath(dirpath, self.commonPath), content)
 
     def SaveFile(self, filename: str, relpath: str, content: str) -> None:
         # pyrefly: ignore [no-matching-overload] - already checked in ValidateParams, self.options["--output"] can only be str
@@ -202,4 +202,4 @@ Options:
         with open(path.join(filepath,filename), "w", encoding="utf-8") as file:
             file.write(content)
 
-        Log.Info(f"{filename} saved in {path.abspath(filepath)}")#
+        Log.Info(f"{filename} saved in {path.abspath(filepath)}")

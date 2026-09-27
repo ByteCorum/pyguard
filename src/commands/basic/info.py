@@ -1,3 +1,4 @@
+from typing import override
 from utils.logger import Log
 from config import Command, NAME, VERSION, AUTHOR, URL, DESCRIPTION
 
@@ -36,6 +37,21 @@ Options:
   --description*`   -> show description of the program.'''
 
     def __init__(self) -> None:
+        self.ValidateParams()
+        self.RunOption()
+
+    @override
+    def ValidateParams(self) -> None:
+        if type(self.options["--all"]) != bool:
+            raise Exception(f"invalid \"--all\" variable type: must be \"bool\", but it's \"{type(self.options["--all"])}\"")
+        if type(self.options["--version"]) != bool:
+            raise Exception(f"invalid \"--version\" variable type: must be \"bool\", but it's \"{type(self.options["--version"])}\"")
+        if type(self.options["--url"]) != bool:
+            raise Exception(f"invalid \"--url\" variable type: must be \"bool\", but it's \"{type(self.options["--url"])}\"")
+        if type(self.options["--description"]) != bool:
+            raise Exception(f"invalid \"--description\" variable type: must be \"bool\", but it's \"{type(self.options["--description"])}\"")
+
+    def RunOption(self) -> None:
         if self.options["--all"]:
             Log.Custom(f"{NAME} version {VERSION}\nby {AUTHOR}\n{DESCRIPTION}\nRepo: {URL}", bypassQuiet=True)
 

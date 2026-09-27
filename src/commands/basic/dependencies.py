@@ -1,3 +1,4 @@
+from typing import override
 from subprocess import CompletedProcess
 from subprocess import run
 from utils.logger import Log
@@ -46,14 +47,36 @@ Options:
         if Log.logFile:
             command += ["--log", Log.logFile]
         if Log.quiet:
-            command.append("--quiet")
+            command += ["--quiet", "--quiet"]
         if Log.noInput:
             command.append("--no-input")
 
         command.append(dep)
         return run(command, capture_output=True, text=True)
 
+    @staticmethod
+    def __logPip(result: CompletedProcess[str]) -> None:
+        if result.stdout.strip():
+            Log.Custom(result.stdout.strip())
+        if result.stderr.strip():
+            Log.Custom(result.stderr.strip(), bypassQuiet=True)
+
     def __init__(self) -> None:
+        self.ValidateParams()
+        self.RunOption()
+
+    @override
+    def ValidateParams(self) -> None:
+        if type(self.options["--show"]) != bool:
+            raise Exception(f"invalid \"--show\" variable type: must be \"bool\", but it's \"{type(self.options["--show"])}\"")
+        if type(self.options["--install"]) != bool:
+            raise Exception(f"invalid \"--install\" variable type: must be \"bool\", but it's \"{type(self.options["--install"])}\"")
+        if type(self.options["--uninstall"]) != bool:
+            raise Exception(f"invalid \"--uninstall\" variable type: must be \"bool\", but it's \"{type(self.options["--uninstall"])}\"")
+        if type(self.options["--update"]) != bool:
+            raise Exception(f"invalid \"--update\" variable type: must be \"bool\", but it's \"{type(self.options["--update"])}\"")
+
+    def RunOption(self) -> None:
         if self.options["--show"]:
             string = ""
             for dep in DEPENDENCIES:
@@ -63,6 +86,8 @@ Options:
         if self.options["--install"]:
             for dep in DEPENDENCIES:
                 result: CompletedProcess[str] = self.__pip(["install"], dep)
+                self.__logPip(result)
+
                 if result.returncode == 0:
                     Log.Success(f"Dependency \"{dep}\" installed")
                 else:
@@ -71,6 +96,8 @@ Options:
         if self.options["--uninstall"]:
             for dep in DEPENDENCIES:
                 result: CompletedProcess[str] = self.__pip(["uninstall", "-y"], dep)
+                self.__logPip(result)
+
                 if result.returncode == 0:
                     Log.Success(f"Dependency \"{dep}\" uninstalled")
                 else:
@@ -79,6 +106,8 @@ Options:
         if self.options["--update"]:
             for dep in DEPENDENCIES:
                 result: CompletedProcess[str] = self.__pip(["install", "--upgrade"], dep)
+                self.__logPip(result)
+
                 if result.returncode == 0:
                     Log.Success(f"Dependency \"{dep}\" updated")
                 else:

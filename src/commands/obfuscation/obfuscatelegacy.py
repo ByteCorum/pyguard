@@ -5,6 +5,8 @@ from config import Command
 from utils.obfuscation import LegacyObfuscation
 from utils.langMgr import RemoveComments
 
+# !!! TODO refactor this file
+
 class Obfuscatelegacy(Command):
     exclusiveOptions: list[str | list[str]] = []
     requiredOptions: list[str | list[str]] = ["--loops", "--mode", ["--files", "--dirs"]]

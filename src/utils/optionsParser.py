@@ -50,19 +50,17 @@ class OptionsParser:
                     raise Exception(f"invalid \"{option}\" value.")
 
                 value:str = self.argv[i+1]
+                expectedValueType: type[bool|str|int|list[str]] =  type(self.command.options[option])
 
-                match type(self.command.options[option]).__name__:
-                    case "str":
-                        self.command.options[option] = value
-
-                    case "int":
-                        self.command.options[option] = int(value)
-
-                    case "list":
-                        self.command.options[option] = value.split(",")
-
-                    case _:
-                        raise Exception(f"unsupported \"{option}\" type.")
+                #Program assume that value have the same type as expectedValueType and tries to convert to needed type and should fail with exception if types don't match
+                if expectedValueType == str:
+                    self.command.options[option] = value
+                elif expectedValueType == int:
+                    self.command.options[option] = int(value)
+                elif expectedValueType == list[str]:
+                    self.command.options[option] = value.split(",")
+                else:
+                    raise Exception(f"internal error: expectedValueType({expectedValueType}) doesn't match any known type")
 
                 skipNext = True
 
@@ -101,21 +99,26 @@ class OptionsParser:
                     raise Exception(f"some options can't be used together: \"{", ".join(group)}\".")
 
     @staticmethod
+    # True if initialized
     def __CheckOptionValue(option: bool|int|str|list[str]) -> bool:
-        match type(option).__name__:
-            case "bool":
-                if option == False: return False
+        optionType: type[bool|str|int|list[str]] = type(option)
 
-            case "str":
-                if option == "": return False
+        if optionType == bool:
+            if option == False:
+               return False
 
-            case "int":
-                if option == 0:  return False
+        elif optionType == str:
+            if option == "":
+               return False
 
-            case "list":
-                if option == []: return False
+        elif optionType == int:
+            if option == 0:
+                return False
 
-            case _:
-                raise Exception(f"unsupported \"{option}\" type.")
+        elif optionType == list[str]:
+            if option == []:
+                return False
+        else:
+            raise Exception(f"internal error: optionType({optionType}) doesn't match any known type")
 
         return True

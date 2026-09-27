@@ -106,22 +106,26 @@ class PyGuard:
                             continue
         return None
 
-    # TODO: global vars should be defined globally, not in every command
     def SetGlobalVars(self) -> None:
         if "--log" in self.command.options:
-            # pyrefly: ignore [bad-assignment] - if --log is not a str program must loudly fail
+            if type(self.command.options["--log"]) != str:
+                raise Exception(f"invalid \"--log\" variable type: must be \"str\", but it's \"{type(self.command.options["--log"])}\"")
+
             Log.logFile = self.command.options["--log"]
 
         if "--quiet" in self.command.options:
-            # pyrefly: ignore [bad-assignment] - if --quiet is not a bool program must loudly fail
+            if type(self.command.options["--quiet"]) != bool:
+                raise Exception(f"invalid \"--quiet\" variable type: must be \"bool\", but it's \"{type(self.command.options["--quiet"])}\"")
             Log.quiet = self.command.options["--quiet"]
 
         if "--no-color" in self.command.options:
-            # if --no-color is not a bool program must loudly fail
+            if type(self.command.options["--no-color"]) != bool:
+                raise Exception(f"invalid \"--no-color\" variable type: must be \"bool\", but it's \"{type(self.command.options["--no-color"])}\"")
             Log.colored = not self.command.options["--no-color"]
 
         if "--no-input" in self.command.options:
-            # pyrefly: ignore [bad-assignment] - if --no-input is not a bool program must loudly fail
+            if type(self.command.options["--no-input"]) != bool:
+                raise Exception(f"invalid \"--no-input\" variable type: must be \"bool\", but it's \"{type(self.command.options["--no-input"])}\"")
             Log.noInput = self.command.options["--no-input"]
 
     def RunCommand(self) -> None:

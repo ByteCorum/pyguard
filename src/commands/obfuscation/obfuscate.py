@@ -22,7 +22,7 @@ class Obfuscate(Command):
         "--salsa": False,
         "--base64": False,
         "--recursive": 0,
-        "--no-protect": False,
+        "--no-protect": True, #!!! TEMPORARY DISABLED CUZ FILE PATH HANDLING CHANGED !!!
         "--enc-exec" : False,
         "--dirs": [],
         "--files": [],

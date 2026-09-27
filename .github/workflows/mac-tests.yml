@@ -62,6 +62,57 @@ jobs:
                   path: |
                       pyguard
 
+    obfuscation-complex-macos:
+        name: Complex Obfuscation MacOS
+        needs: ["build"]
+        runs-on: macos-latest
+
+        steps:
+            - name: Check out code from GitHub
+              uses: actions/checkout@v7
+
+            - name: Set up Python
+              uses: actions/setup-python@v7
+              with:
+                  python-version: "3.14"
+
+            - name: Install dependencies
+              run: |
+                  python3 -m pip install --upgrade pip
+                  pip3 install -r requirements.txt
+
+            - name: Download Executable
+              uses: actions/download-artifact@v8
+              with:
+                  name: pyguard-macos_${{ needs.build.outputs.sha_short }}
+                  path: "examples"
+
+            - name: Preparation For Test
+              working-directory: examples
+              run: |
+                  mv pyguard complex/
+                  chmod +x complex/pyguard
+                  rm -rf complex/obfuscated
+
+            - name: Obfuscation Test
+              working-directory: examples/complex
+              run: |
+                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input --files proxy.py --dirs dir main.py
+
+            - name: Testing Results
+              working-directory: examples/complex/obfuscated
+              run: |
+                  OUTPUT=$(python main.py)
+                  echo "Output: $OUTPUT"
+
+                  echo "Result: "
+                  if [ "$OUTPUT" = "hello world" ]; then
+                    echo "Success: main.py output contains 'hello world'"
+                  else
+                    echo "Failure: main.py output does not contain 'hello world'"
+                    exit 1
+                  fi
+
     obfuscation-multifile-macos:
         name: Multi-file Obfuscation MacOS
         needs: ["build"]
@@ -152,6 +203,57 @@ jobs:
 
             - name: Testing Results
               working-directory: examples/onefile/obfuscated
+              run: |
+                  OUTPUT=$(python main.py)
+                  echo "Output: $OUTPUT"
+
+                  echo "Result: "
+                  if [ "$OUTPUT" = "hello world" ]; then
+                    echo "Success: main.py output contains 'hello world'"
+                  else
+                    echo "Failure: main.py output does not contain 'hello world'"
+                    exit 1
+                  fi
+
+    obfuscationlegacy-complex-macos:
+        name: Complex Legacy Obfuscation MacOS
+        needs: ["build"]
+        runs-on: macos-latest
+
+        steps:
+            - name: Check out code from GitHub
+              uses: actions/checkout@v7
+
+            - name: Set up Python
+              uses: actions/setup-python@v7
+              with:
+                  python-version: "3.14"
+
+            - name: Install dependencies
+              run: |
+                  python3 -m pip install --upgrade pip
+                  pip3 install -r requirements.txt
+
+            - name: Download Executable
+              uses: actions/download-artifact@v8
+              with:
+                  name: pyguard-macos_${{ needs.build.outputs.sha_short }}
+                  path: "examples"
+
+            - name: Preparation For Test
+              working-directory: examples
+              run: |
+                  mv pyguard complex-legacy/
+                  chmod +x complex-legacy/pyguard
+                  rm -rf complex-legacy/obfuscated
+
+            - name: Obfuscation Test
+              working-directory: examples/complex-legacy
+              run: |
+                  ./pyguard obfuscatelegacy --no-input --mode 4 --loops 6 --dirs dir --files main.py,proxy.py
+
+            - name: Testing Results
+              working-directory: examples/complex-legacy/obfuscated
               run: |
                   OUTPUT=$(python main.py)
                   echo "Output: $OUTPUT"

@@ -32,7 +32,7 @@ class Obfuscate(Command):
 
     help = f'''
 Usage:
-  pyguard obfuscate [options] main.py
+  pyguard obfuscate [options] <entry>.py
 Example:
   pyguard obfuscate --hashdata --aes --follow-imports main.py
 

@@ -27,7 +27,7 @@ class PyGuard:
         try:
             # Call should contain at least executable path and command name
             if len(argv) < 2:
-                raise Exception("missing command name.")
+                raise Exception("missing command name")
 
             self.command = self.GetCommand(argv[1])
 
@@ -58,7 +58,7 @@ class PyGuard:
         #name.title(), cuz it looks in files in commands/** for class name, which is title by project style
         command: Command | None = self.SearchCommand(name.title(), COMMANDS_DIR)
         if not command:
-            raise Exception(f"invalid command name: \"{name.lower()}\".")
+            raise Exception(f"invalid command name: \"{name.lower()}\"")
 
         return command
 

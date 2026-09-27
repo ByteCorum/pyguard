@@ -23,7 +23,7 @@ class MainObfuscation:
         self.encExec = encExec
         self.recursive = recursive
         if self.recursive < 0:
-            raise Exception("Invalid recursive value.")
+            raise Exception("Invalid recursive value")
 
         self.PrepareKeys()
 
@@ -307,9 +307,9 @@ setup(
 class LegacyObfuscation:
     def __init__(self, mode, loops, separator: str):
         if mode < 1 or mode > 4:
-            raise Exception("Invalid mode value.")
+            raise Exception("Invalid mode value")
         if loops < 1:
-            raise Exception("Invalid loops value.")
+            raise Exception("Invalid loops value")
 
         self.mode = mode
         self.loops = loops
@@ -327,7 +327,7 @@ class LegacyObfuscation:
                 case 4:
                     content = self.PowerObfuscateion(content)
                 case _:
-                    raise Exception("Invalid mode value.")
+                    raise Exception("Invalid mode value")
 
         return content
 
@@ -342,7 +342,7 @@ class LegacyObfuscation:
             case 4:
                 return f"#Obfuscated by {NAME} {VERSION}\n_=lambda __:__import__('zlib').decompress(__import__('base64').b64decode(__import__('zlib').decompress((__import__('cryptography.fernet').fernet.Fernet(__import__('base64').b64decode(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[1])).decrypt(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[0])))[::-1]));"+content
             case _:
-                raise Exception("Invalid mode value.")
+                raise Exception("Invalid mode value")
 
     def PowerObfuscateion(self, content):
         content = content.encode('utf-8')

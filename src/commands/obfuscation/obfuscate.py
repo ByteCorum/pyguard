@@ -37,29 +37,29 @@ Example:
   pyguard obfuscate --hashdata --aes --follow-imports main.py
 
 Notes:
-  text,text         -> to add more than one arg to option.
-  main.py           -> the entry point of your program.
+  text,text         -> to add more than one arg to option
+  main.py           -> the entry point of your program
 
 Options:
-  --help            -> show help for commands.
-  --quiet           -> give less output.
-  --log <path>      -> write all logs to a file.
-  --no-color        -> suppress colored output.
-  --no-input        -> disable prompting for input.
+  --help            -> show help for commands
+  --quiet           -> give less output
+  --log <path>      -> write all logs to a file
+  --no-color        -> suppress colored output
+  --no-input        -> disable prompting for input
 
-  --hashdata        -> convert all strings and var names into hash.
-  --fernet          -> obfuscation and encryption using fernet.
-  --aes             -> obfuscation and encryption using aes256.
-  --chacha          -> obfuscation and encryption using chacha20.
-  --salsa           -> obfuscation and encryption using salsa20.
-  --base64          -> obfuscation and encryption using base64.
-  --recursive <num> -> not strong but good if u need to hide ur prog from AVs.
-  --no-protect      -> disable file modification protection.
-  --enc-exec        -> obfuscate executor via legacy encryption method.
-  --dirs <path>     -> obfuscate all files in dir.
-  --files <path>    -> files for obfuscation.
-  --output <path>   -> output dir.
-  --follow-imports  -> add all imports to the protected script.'''
+  --hashdata        -> convert all strings and var names into hash
+  --fernet          -> obfuscation and encryption using fernet
+  --aes             -> obfuscation and encryption using aes256
+  --chacha          -> obfuscation and encryption using chacha20
+  --salsa           -> obfuscation and encryption using salsa20
+  --base64          -> obfuscation and encryption using base64
+  --recursive <num> -> not strong but good if u need to hide ur prog from AVs
+  --no-protect      -> disable file modification protection
+  --enc-exec        -> obfuscate executor via legacy encryption method
+  --dirs <path>     -> obfuscate all files in dir
+  --files <path>    -> files for obfuscation
+  --output <path>   -> output dir
+  --follow-imports  -> add all imports to the protected script'''
 
     def __init__(self):
         self.InitVars()
@@ -75,13 +75,13 @@ Options:
     def CheckOptions(self):
         Log.Info("Obfuscation")
         if self.options["--recursive"] < 0:
-            raise Exception("Invalid --recursive value.")
+            raise Exception("Invalid --recursive value")
 
         if not self.options["--output"]:
             self.options["--output"] = "obfuscated"
 
         if path.exists(self.options["--output"]):
-            Log.Warning(f"Output directory already exists: \"{self.options['--output']}\".")
+            Log.Warning(f"Output directory already exists: \"{self.options['--output']}\"")
             responce = ""
             while responce != "y" or responce != "n" or responce != "ignore":
                 responce = Log.Question("Override directory? (y/n)").lower()
@@ -89,34 +89,34 @@ Options:
                 match responce:
                     case "ignore":
                         rmtree(self.options["--output"])
-                        Log.Info("Directory overridden.")
+                        Log.Info("Directory overridden")
                         break
                     case "y":
                         rmtree(self.options["--output"])
-                        Log.Success("Directory overridden.")
+                        Log.Success("Directory overridden")
                         break
                     case "n":
-                        Log.Success("Directory skipped.")
+                        Log.Success("Directory skipped")
                         break
                     case _:
-                        Log.Fail("Invalid response. Please enter 'y' or 'n'.")
+                        Log.Fail("Invalid response. Please enter 'y' or 'n'")
             print()
 
         self.entryPoint = self.options["entrypoint"]
         if not path.exists(self.entryPoint) or not path.isfile(self.entryPoint) or not self.entryPoint.endswith(".py"):
-            raise Exception(f"Invalid entrypoint path: \"{self.entryPoint}\".")
+            raise Exception(f"Invalid entrypoint path: \"{self.entryPoint}\"")
         if path.isabs(self.entryPoint):
             raise Exception(f"Abs path is unsupported: \"{self.entryPoint}\"")
 
         for file in self.options["--files"]:
             if not path.exists(file) or not path.isfile(file) or not file.endswith(".py"):
-                raise Exception(f"Invalid file path: \"{file}\".")
+                raise Exception(f"Invalid file path: \"{file}\"")
             if path.isabs(file):
                 raise Exception(f"Abs path is unsupported: \"{file}\"")
 
         for dir in self.options["--dirs"]:
             if not path.exists(dir) or not path.isdir(dir):
-                raise Exception(f"Invalid directory path: \"{dir}\".")
+                raise Exception(f"Invalid directory path: \"{dir}\"")
             if path.isabs(dir):
                 raise Exception(f"Abs path is unsupported: \"{dir}\"")
 

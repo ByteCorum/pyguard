@@ -23,18 +23,18 @@ Example:
   pyguard info --all
 
 Note:
-  `                 -> only one option from a group can be used.
-  *                 -> required option.
+  `                 -> only one option from a group can be used
+  *                 -> required option
 
 Options:
-  --help            -> show help for commands.
-  --log <path>      -> write all logs to a file.
-  --no-color        -> suppress colored output.
+  --help            -> show help for commands
+  --log <path>      -> write all logs to a file
+  --no-color        -> suppress colored output
 
-  --all*`           -> show all information about the program.
-  --version*`       -> show version of the program.
-  --url*`           -> show URL of program's github repo.
-  --description*`   -> show description of the program.'''
+  --all*`           -> show all information about the program
+  --version*`       -> show version of the program
+  --url*`           -> show URL of program's github repo
+  --description*`   -> show description of the program'''
 
     def __init__(self) -> None:
         self.ValidateParams()

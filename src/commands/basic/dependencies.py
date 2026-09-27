@@ -26,18 +26,18 @@ Example:
   pyguard dependencies --quiet --no-input y --install
 
 Note:
-  `                 -> only one option from a group can be used.
-  *                 -> required option.
+  `                 -> only one option from a group can be used
+  *                 -> required option
 
 Options:
-  --help            -> show help for commands.
-  --quiet           -> give less output.
-  --log <path>      -> write all logs to a file.
-  --no-color        -> suppress colored output.
+  --help            -> show help for commands
+  --quiet           -> give less output
+  --log <path>      -> write all logs to a file
+  --no-color        -> suppress colored output
 
-  --show*`          -> show all dependencies of the program.
-  --install*`       -> install all dependencies of the program.
-  --uninstall*`     -> uninstall all dependencies of the program.
+  --show*`          -> show all dependencies of the program
+  --install*`       -> install all dependencies of the program
+  --uninstall*`     -> uninstall all dependencies of the program
   --update*`        -> update all dependencies of the program'''
 
     @staticmethod

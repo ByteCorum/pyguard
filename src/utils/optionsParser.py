@@ -12,7 +12,7 @@ class OptionsParser:
         # Highest priority for help
         if "--help" in self.argv:
             if self.argc > 1:
-                Log.Warning("--help found, other options ignored.")
+                Log.Warning("--help found, other options ignored")
             self.helpCalled = True
             return
 
@@ -33,11 +33,11 @@ class OptionsParser:
 
             # Check whether option in dict options under command, for understanding see obfuscate.py command
             if option not in self.command.options:
-                raise Exception(f"invalid option: \"{option}\".")
+                raise Exception(f"invalid option: \"{option}\"")
 
             # Gives value of an option to check whether it has default value or smt else
             if OptionsParser.__CheckOptionValue(self.command.options[option]):
-                Log.Warning(f"Value overridden, \"{option}\" have been already defined.")
+                Log.Warning(f"Value overridden, \"{option}\" have been already defined")
 
             # If it's bool just set it to true
             if type(self.command.options[option]) == bool:
@@ -47,7 +47,7 @@ class OptionsParser:
                 # If it's not a bool it should has a value
                 # It doesn't check the correctness of passed value, cuz it's job of command itself, just it's existence
                 if i+1 >= self.argc or self.argv[i+1].find("--") != -1:
-                    raise Exception(f"invalid \"{option}\" value.")
+                    raise Exception(f"invalid \"{option}\" value")
 
                 value:str = self.argv[i+1]
                 expectedValueType: type[bool|str|int|list[str]] =  type(self.command.options[option])
@@ -78,14 +78,14 @@ class OptionsParser:
                             break
 
                     if not inited:
-                        raise Exception(f"at least one of this options required: \"{", ".join(option)}\".")
+                        raise Exception(f"at least one of this options required: \"{", ".join(option)}\"")
 
                 # One particular option
                 else:
                     # Gives value of an option to check whether it has default value or smt else
                     # pyrefly: ignore [bad-index] - option can not be list cuz already checked
                     if not OptionsParser.__CheckOptionValue(self.command.options[option]):
-                        raise Exception(f"missing required option: \"{option}\".")
+                        raise Exception(f"missing required option: \"{option}\"")
 
         if self.command.exclusiveOptions:
             for group in self.command.exclusiveOptions:
@@ -96,7 +96,7 @@ class OptionsParser:
 
                 #More than 1 only if more than one are on =)
                 if sum(state) > 1:
-                    raise Exception(f"some options can't be used together: \"{", ".join(group)}\".")
+                    raise Exception(f"some options can't be used together: \"{", ".join(group)}\"")
 
     @staticmethod
     # True if initialized

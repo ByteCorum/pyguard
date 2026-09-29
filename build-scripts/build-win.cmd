@@ -9,7 +9,7 @@ python -m nuitka ^
     --windows-icon-from-ico="assets/app/icon.ico" ^
     --include-data-files="src/commands/basic/*.py=commands/basic/" ^
     --include-data-files="src/commands/obfuscation/*.py=commands/obfuscation/" ^
-    --include-data-files="src/templates/*.py=commands/templates/" ^
+    --include-data-files="src/templates/*.py=templates/" ^
     --include-module="utils.langMgr" ^
     --include-module="utils.crypto" ^
     --include-module="utils.logger" ^

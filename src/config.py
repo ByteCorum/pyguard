@@ -8,6 +8,7 @@ VERSION:str  = "3.1.0.0"
 DESCRIPTION:str  = "Tool/Library for Python used to obfuscate and protect your code in static and runtime from decompilation, reverse debug, etc. Also, can prevent detection by antivirus"
 
 COMMANDS_DIR:str = f"{path.dirname(path.abspath(__file__))}/commands/"
+EXECUTOR_TEMPLATE:str = f"{path.dirname(path.abspath(__file__))}/templates/executor.py"
 DEPENDENCIES:list[str]  = ["cryptography", "pycryptodome", "cython", "nuitka", "colorama", "types-colorama","setuptools"]
 
 class Command(ABC):

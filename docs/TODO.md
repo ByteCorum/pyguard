@@ -16,6 +16,8 @@ Link the matching issue when one exists: `[ ] #42 ...`
 - [ ] Rework required options indicator for 1 from many | P:0 | S:s
 - [ ] Rework parameters system to auto check type and validity | P:3 | S:xl
 - [ ] Rewrite help for commands | P:1 | S:m
+- [ ] Print output of pip in real time (dependencies.py) | P:3 | S:s
+- [x] Add variable names hashing | P:- | S:l | not planned; useless against ai code review
 
 ## Feature Ideas
 

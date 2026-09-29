@@ -1,0 +1,137 @@
+from hashlib import sha512
+from cryptography.fernet import Fernet
+from base64 import b64decode, b64encode
+from cryptography.hazmat.primitives.ciphers.aead import AESGCMSIV
+from Crypto.Cipher import ChaCha20_Poly1305
+from zlib import decompress
+from os import path
+from sys import exit, stderr, version_info
+import ast
+from typing import override
+from string import hexdigits
+
+_ = exec
+
+class PyGuard:
+    def __init__(self, enccode:bytes, filepath: str)-> None:
+        try:
+            if version_info < (3, 12): exit(1)
+
+            self.__enccodeSECRET: bytes = enccode
+            self.__filepathSECRET: str = filepath
+
+            self.__CheckFileIntegritySECRET()
+            self.__DecryptSECRET()
+        except Exception:
+            print("Runtime error occurred", file=stderr, flush=True)
+            exit(-1)
+
+    def __dir__(self) -> list[str]:
+        return []
+
+    def __CheckFileIntegritySECRET(self) -> None:
+        __filehashmanifestSECRET: dict[str, str] = {}
+        try:
+            if not __filehashmanifestSECRET:
+                raise RuntimeError("integrity manifest is empty - build injection failed")
+
+            __fromExecToFileSECRET: str = path.relpath(self.__filepathSECRET, path.dirname(__file__))
+
+            __expectedHashSECRET: str | None = __filehashmanifestSECRET.get(__fromExecToFileSECRET)
+            if __expectedHashSECRET is None:
+                raise RuntimeError(f"integrity manifest has no entry for {self.__filepathSECRET}")
+
+            with open(self.__filepathSECRET, "rb") as __fileSECRET:
+                __actualHashSECRET: str = sha512(__fileSECRET.read()).hexdigest()
+                if __actualHashSECRET != __expectedHashSECRET:
+                    raise RuntimeError(f"integrity check failed for {self.__filepathSECRET}")
+
+        except Exception:
+            print("Runtime error occurred", file=stderr, flush=True)
+            exit(1)
+
+    def __DecryptSECRET(self) -> None:
+        try:
+            self.__Base64SECRET()
+            self.__codeSECRET = self.__codeSECRET[::-1]
+            self.__RecursiveSECRET()
+            self.__ChaChaSECRET()
+            self.__AesSECRET()
+            self.__FernetSECRET()
+            self.__Base64SECRET()
+
+            self.__codeSECRET = self.__codeSECRET[::-1]
+            self.__codeSECRET = decompress(self.__codeSECRET)
+            self.__codeSECRET = self.__codeSECRET.decode('utf-8')
+
+            self.__ReturnVariablesSECRET()
+            self.__codeSECRET = b64encode(self.__codeSECRET.encode('utf-8'))
+
+        except Exception:
+            print("Runtime error occurred", file=stderr, flush=True)
+            exit(1)
+
+    @property
+    def _(self):
+        return compile(b64decode(self.__codeSECRET).decode('utf-8'), '<string>', 'exec')
+
+    def __RecursiveSECRET(self) -> None:
+        __recursiveIterationsSECRET: int = 0
+        for i in range(__recursiveIterationsSECRET):
+            self.__codeSECRET = decompress(self.__codeSECRET)
+            self.__codeSECRET = self.__codeSECRET[::-1]
+            self.__codeSECRET = b64decode(self.__codeSECRET)
+
+    def __ChaChaSECRET(self) -> None:
+        __chachaKeySECRET = b""
+        self.__codeSECRET = decompress(self.__codeSECRET)
+        self.__codeSECRET = b64decode(self.__codeSECRET)
+        if len(self.__codeSECRET) < 24 + 16:
+            raise ValueError("XChaCha20-Poly1305: Ciphertext too short")
+        __nonceSECRET: bytes = self.__codeSECRET[:24]
+        __macSECRET: bytes = self.__codeSECRET[-16:]
+        self.__codeSECRET = self.__codeSECRET[24:-16]
+        __cipherSECRET = ChaCha20_Poly1305.new(key=__chachaKeySECRET, nonce=__nonceSECRET)
+        self.__codeSECRET = __cipherSECRET.decrypt_and_verify(self.__codeSECRET, __macSECRET)
+
+    def __AesSECRET(self) -> None:
+        __aesKeySECRET = b""
+        self.__codeSECRET = decompress(self.__codeSECRET)
+        __aesSECRET = AESGCMSIV(__aesKeySECRET)
+        self.__codeSECRET = b64decode(self.__codeSECRET)
+        if len(self.__codeSECRET) < 12:
+            raise ValueError("AES-GCM-SIV: Ciphertext too short")
+        __nonceSECRET: bytes = self.__codeSECRET[:12]
+        self.__codeSECRET = self.__codeSECRET[12:]
+
+        self.__codeSECRET = __aesSECRET.decrypt(__nonceSECRET, self.__codeSECRET, associated_data=None)
+
+    def __FernetSECRET(self)-> None:
+        __fernetKeySECRET = b""
+        self.__codeSECRET = decompress(self.__codeSECRET)
+        fernet = Fernet(__fernetKeySECRET)
+        self.__codeSECRET = fernet.decrypt(self.__codeSECRET)
+
+    def __Base64SECRET(self)-> None:
+        self.__codeSECRET = decompress(self.__codeSECRET)
+        self.__codeSECRET = b64decode(self.__codeSECRET)
+
+    class __VariableDehasher(ast.NodeTransformer):
+        def __init__(self) -> None:
+            self.__filehashmanifestSECRET: dict[str, bytes] = {}
+
+        @override
+        def visit_Constant(self, node: ast.Constant) -> ast.Constant:
+            __valueSECRET = node.value
+            if (isinstance(__valueSECRET, str)
+                    and len(__valueSECRET) == 128
+                    and set(__valueSECRET) <= set(hexdigits.lower())
+                    and __valueSECRET in self.__filehashmanifestSECRET):
+                node.value = decompress(self.__filehashmanifestSECRET[__valueSECRET]).decode('utf-8')
+            return node
+
+    def __ReturnVariablesSECRET(self) -> None:
+        __treeSECRET: ast.Module = ast.parse(self.__codeSECRET)
+        __treeSECRET = self.__VariableDehasher().visit(__treeSECRET)
+        ast.fix_missing_locations(__treeSECRET)
+        self.__codeSECRET = ast.unparse(__treeSECRET)

@@ -24,9 +24,13 @@ def RemoveComments(context: str) -> str:
 
 def GetImports(content: str) -> list [str]:
     imports: list[str] = []
+
     # Parse the source content into an abstract syntax tree;
     # `tree` is type-annotated as a `Module` (the AST's root node).
-    tree: Module = parse(content)
+    try:
+        tree: Module = parse(content)
+    except SyntaxError as error:
+            raise ValueError(f"Source is not valid Python: {error}") from error
 
     for node in walk(tree):
         if isinstance(node, Import):# Handle: import module1, module2

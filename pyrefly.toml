@@ -14,7 +14,8 @@ project-excludes = [
     "**/pyvenv/**",
     "**/.pyvenv/**",
     "**/__pycache__/**",
-    "examples/"
+    "examples/",
+    "src/templates/",
 ]
 
 search-path = ["src"]

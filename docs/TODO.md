@@ -20,6 +20,7 @@ Link the matching issue when one exists: `[ ] #42 ...`
 - [x] Add variable names hashing | P:- | S:l | not planned; useless against ai code review
 - [ ] Add new vars to obfuscate
 - [ ] Fix tests
+- [ ] Regenerate examples
 
 ## Feature Ideas
 

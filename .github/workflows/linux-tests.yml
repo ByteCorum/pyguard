@@ -97,7 +97,7 @@ jobs:
             - name: Obfuscation Test
               working-directory: examples/complex
               run: |
-                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input --files proxy.py --dirs dir main.py
+                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --base64 --recursive 4 --follow-imports --no-input --files proxy.py --dirs dir main.py
 
             - name: Testing Results
               working-directory: examples/complex/obfuscated
@@ -148,7 +148,7 @@ jobs:
             - name: Obfuscation Test
               working-directory: examples/multifile
               run: |
-                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input --files lib.py main.py
+                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --base64 --recursive 4 --follow-imports --no-input --files lib.py main.py
 
             - name: Testing Results
               working-directory: examples/multifile/obfuscated
@@ -199,7 +199,7 @@ jobs:
             - name: Obfuscation Test
               working-directory: examples/onefile
               run: |
-                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input main.py
+                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --base64 --recursive 4 --follow-imports --no-input main.py
 
             - name: Testing Results
               working-directory: examples/onefile/obfuscated

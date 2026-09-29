@@ -18,6 +18,8 @@ Link the matching issue when one exists: `[ ] #42 ...`
 - [ ] Rewrite help for commands | P:1 | S:m
 - [ ] Print output of pip in real time (dependencies.py) | P:3 | S:s
 - [x] Add variable names hashing | P:- | S:l | not planned; useless against ai code review
+- [ ] Add new vars to obfuscate
+- [ ] Fix tests
 
 ## Feature Ideas
 

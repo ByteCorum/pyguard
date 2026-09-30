@@ -17,9 +17,11 @@ class Obfuscatelegacy(Command):
 
         "--loops": 0,
         "--mode": 0,
+        "--seplen": 0,
+
         "--dirs": [],
         "--files": [],
-        "--output": ""
+        "--output": "",
     }
 
     help = f'''
@@ -37,6 +39,8 @@ Options:
 
   --loops <num>     -> amount of obfuscation's loops
   --mode <1-4>      -> obfuscation mode; higher better but slower and larger
+  --seplen <12+>    -> the length of separator between code blocks
+
   --dirs <path>     -> selected files for obfuscation
   --files <path>    -> selected dirs for obfuscation
   --output <path>   -> output dir path
@@ -87,6 +91,14 @@ Note:
         if self.options["--mode"] < 1 or self.options["--mode"] > 4:
             raise ValueError("Invalid --mode value")
         Log.Info(f"Obfuscation mode: {self.options["--mode"]}")
+
+        if type(self.options["--seplen"]) != int:
+            raise TypeError(f"invalid \"--seplen\" variable type: must be \"int\", but it's \"{type(self.options["--seplen"])}\"")
+        if self.options["--seplen"] == 0:
+            self.options["--seplen"] = 32
+        if self.options["--seplen"] < 12:
+            raise ValueError("Separator is too short; must be at least 12")
+        Log.Info(f"Separator length: {self.options["--seplen"]}")
 
         Log.Custom("",end='\n')# Separator
 
@@ -173,7 +185,7 @@ Note:
 
             content = RemoveComments(content)
             # pyrefly: ignore [bad-argument-type] - already checked in ValidateParams self.options["--mode"] and self.options["--loops"] can only be int
-            obfuscator = LegacyObfuscation(self.options["--mode"], self.options["--loops"], LegacyObfuscation.GenSeperator())
+            obfuscator = LegacyObfuscation(self.options["--mode"], self.options["--loops"], LegacyObfuscation.GenSeperator(self.options["--seplen"]))
             content = obfuscator.Encrypt(content)
             content = obfuscator.Wrap(content)
 

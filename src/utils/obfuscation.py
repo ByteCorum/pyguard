@@ -352,7 +352,7 @@ class MainObfuscation:
             file.write(executorContent)
 
         Log.Info(f"Executor saved as {executorPath}")
-        #self.AssembleExecutor(outputDir)
+        self.AssembleExecutor(outputDir)
 
 
     def AssembleExecutor(self, outputDir: str) -> None:

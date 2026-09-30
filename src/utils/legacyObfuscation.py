@@ -38,23 +38,23 @@ class LegacyObfuscation:
             case 2:
                 return f"#Obfuscated by {NAME}\n_=lambda __:__import__('zlib').decompress(__import__('cryptography.fernet').fernet.Fernet(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[1]).decrypt(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[0])[::-1]);"+content
             case 3:
-                return f"#Obfuscated by {NAME}\n_=lambda __:__import__('zlib').decompress(__import__('cryptography.fernet').fernet.Fernet(__import__('base64').b64decode(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[1])).decrypt(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[0])[::-1]);"+content
+                return f"#Obfuscated by {NAME}\n_=lambda __:__import__('zlib').decompress(__import__('cryptography.fernet').fernet.Fernet(__import__('base64').b64decode(((__import__('zlib').decompress(__))[::-1].split(__import__('base64').b64encode(b'{self.separator}')))[1])).decrypt(((__import__('zlib').decompress(__))[::-1].split(__import__('base64').b64encode(b'{self.separator}')))[0])[::-1]);"+content
             case 4:
-                return f"#Obfuscated by {NAME}\n_=lambda __:__import__('zlib').decompress(__import__('base64').b64decode(__import__('zlib').decompress((__import__('cryptography.fernet').fernet.Fernet(__import__('base64').b64decode(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[1])).decrypt(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[0])))[::-1]));"+content
+                return f"#Obfuscated by {NAME}\n_=lambda __:__import__('zlib').decompress(__import__('base64').b64decode((__import__('zlib').decompress(__import__('cryptography.fernet').fernet.Fernet(__import__('base64').b64decode(((__import__('zlib').decompress(__))[::-1].split(__import__('base64').b64encode(b'{self.separator}')))[1])).decrypt(((__import__('zlib').decompress(__))[::-1].split(__import__('base64').b64encode(b'{self.separator}')))[0])))[::-1]));"+content
             case _:
                 raise ValueError("Invalid mode value")
 
     def PowerObfuscateion(self, content: str) -> str:
-        bytestr:bytes = content.encode('utf-8')
+        bytestr: bytes = content.encode('utf-8')
 
         bytestr = compress(bytestr)
         bytestr = b64encode(bytestr)
         bytestr = bytestr[::-1]
         bytestr = compress(bytestr)
 
-        key:bytes = FernetMethod.GenKey()
-        # TODO encode separator with b64encode
-        bytestr = FernetMethod.Encrypt(key,bytestr)+self.separator.encode("utf-8")+b64encode(key)
+        key: bytes = FernetMethod.GenKey()
+        separator: bytes = b64encode(self.separator.encode("utf-8"))
+        bytestr = FernetMethod.Encrypt(key, bytestr) + separator + b64encode(key)
 
         bytestr = bytestr[::-1]
         bytestr = compress(bytestr)
@@ -62,14 +62,14 @@ class LegacyObfuscation:
         return f"exec((_)({bytestr}))"
 
     def MediumObfuscation(self, content: str) -> str:
-        bytestr:bytes = content.encode('utf-8')
+        bytestr: bytes = content.encode('utf-8')
 
         bytestr = compress(bytestr)
         bytestr = bytestr[::-1]
 
-        key:bytes = FernetMethod.GenKey()
-        # TODO encode separator with b64encode
-        bytestr = FernetMethod.Encrypt(key, bytestr)+self.separator.encode("utf-8")+b64encode(key)
+        key: bytes = FernetMethod.GenKey()
+        separator: bytes = b64encode(self.separator.encode("utf-8"))
+        bytestr = FernetMethod.Encrypt(key, bytestr) + separator + b64encode(key)
 
         bytestr = bytestr[::-1]
         bytestr = compress(bytestr)
@@ -105,8 +105,6 @@ class LegacyObfuscation:
 
     @staticmethod
     def GenSeperator(length: int = 32) -> str:
-        # TODO resolve this
-        # ? Pointless check and param either add as obfuscationlegacy param or remove
         if length < 12:
             raise ValueError("Too short separator")
         return ''.join(choice(ascii_letters+digits) for _ in range(length))

@@ -97,7 +97,7 @@ jobs:
             - name: Obfuscation Test
               working-directory: examples/complex
               run: |
-                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --base64 --recursive 4 --follow-imports --no-input --files proxy.py --dirs dir main.py
+                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --base64 --recursive 8 --follow-imports --no-input --files proxy.py --dirs dir main.py
 
             - name: Testing Results
               working-directory: examples/complex/obfuscated
@@ -148,7 +148,7 @@ jobs:
             - name: Obfuscation Test
               working-directory: examples/multifile
               run: |
-                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --base64 --recursive 4 --follow-imports --no-input --files lib.py main.py
+                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --base64 --recursive 8 --follow-imports --no-input --files lib.py main.py
 
             - name: Testing Results
               working-directory: examples/multifile/obfuscated
@@ -199,7 +199,7 @@ jobs:
             - name: Obfuscation Test
               working-directory: examples/onefile
               run: |
-                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --base64 --recursive 4 --follow-imports --no-input main.py
+                  ./pyguard obfuscate --aes --hashdata --fernet --chacha --base64 --recursive 8 --follow-imports --no-input main.py
 
             - name: Testing Results
               working-directory: examples/onefile/obfuscated
@@ -250,7 +250,7 @@ jobs:
             - name: Obfuscation Test
               working-directory: examples/complex-legacy
               run: |
-                  ./pyguard obfuscatelegacy --no-input --mode 4 --loops 6 --dirs dir --files main.py,proxy.py
+                  ./pyguard obfuscatelegacy --no-input --mode 4 --loops 6 --seplen 64 --dirs dir --files main.py,proxy.py
 
             - name: Testing Results
               working-directory: examples/complex-legacy/obfuscated
@@ -301,7 +301,7 @@ jobs:
             - name: Obfuscation Test
               working-directory: examples/multifile-legacy
               run: |
-                  ./pyguard obfuscatelegacy --no-input --mode 4 --loops 6 --files lib.py,main.py
+                  ./pyguard obfuscatelegacy --no-input --mode 4 --loops 6 --seplen 64 --files lib.py,main.py
 
             - name: Testing Results
               working-directory: examples/multifile-legacy/obfuscated
@@ -352,7 +352,7 @@ jobs:
             - name: Obfuscation Test
               working-directory: examples/onefile-legacy
               run: |
-                  ./pyguard obfuscatelegacy --no-input --mode 4 --loops 6 --files main.py
+                  ./pyguard obfuscatelegacy --no-input --mode 4 --loops 6 --seplen 64 --files main.py
 
             - name: Testing Results
               working-directory: examples/onefile-legacy/obfuscated

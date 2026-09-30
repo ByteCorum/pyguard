@@ -25,6 +25,7 @@ class Obfuscate(Command):
         "--no-protect": False,
         "--enc-exec" : False,
         "--follow-imports" : False,
+        "--debug-error": False,
         "--debug": False,
         "--decoy": "",
 
@@ -39,7 +40,7 @@ class Obfuscate(Command):
 Usage:
   pyguard obfuscate [options] <entry>
 Example:
-  pyguard obfuscate --hashdata --aes --follow-imports --enc-exec --decoy decoy.py main.py
+  pyguard obfuscate --hashdata --aes --follow-imports --decoy decoy.py main.py
 
 Options:
   --help            -> get help for commands
@@ -49,7 +50,7 @@ Options:
   --no-input        -> disable prompting for input
 
   --hashdata        -> replace all stings in code with sha512 hash
-  --fernet          -> encrypt code using fernet
+  --fernet          -> encrypt code using Fernet
   --aes             -> encrypt code using AES-GCM-SIV
   --chacha          -> encrypt code using XChaCha20-Poly1305
   --base64          -> encode entry and exit code with base64
@@ -99,6 +100,7 @@ Note:
         Log.Success("Obfuscation completed", bypassQuiet=True)
 
     def InitVars(self) -> None:
+        self.decoySource = ""
         self.projRoot:str
         self.imports: list[str] = []
 
@@ -109,43 +111,53 @@ Note:
         if type(self.options["--follow-imports"]) != bool:
             raise TypeError(f"invalid \"--follow-imports\" variable type: must be \"bool\", but it's \"{type(self.options["--follow-imports"])}\"")
         if self.options["--follow-imports"]:
-            Log.Info(f"Follow imports: Enabled")
+            Log.Info("Follow imports: Enabled")
 
         if type(self.options["--no-protect"]) != bool:
             raise TypeError(f"invalid \"--no-protect\" variable type: must be \"bool\", but it's \"{type(self.options["--no-protect"])}\"")
         if self.options["--no-protect"]:
-            Log.Info(f"File modification protection: Disabled")
+            Log.Warning("File integrity checks: Disabled")
 
         if type(self.options["--enc-exec"]) != bool:
             raise TypeError(f"invalid \"--enc-exec\" variable type: must be \"bool\", but it's \"{type(self.options["--enc-exec"])}\"")
         if self.options["--enc-exec"]:
-            Log.Info(f"Executor encryption: Enabled")
+            Log.Info("Executor obfuscation: Enabled")
+
+        if type(self.options["--debug-error"]) != bool:
+            raise TypeError(f"invalid \"--debug-error\" variable type: must be \"bool\", but it's \"{type(self.options["--debug-error"])}\"")
+        if self.options["--debug-error"]:
+            Log.Warning("Executor verbose errors: Enabled")
+
+        if type(self.options["--debug"]) != bool:
+            raise TypeError(f"invalid \"--debug\" variable type: must be \"bool\", but it's \"{type(self.options["--debug"])}\"")
+        if self.options["--debug"]:
+            Log.Warning("Executor debug build: Enabled")
 
         ## Methods
         if type(self.options["--hashdata"]) != bool:
             raise TypeError(f"invalid \"--hashdata\" variable type: must be \"bool\", but it's \"{type(self.options["--hashdata"])}\"")
         if self.options["--hashdata"]:
-            Log.Info(f"Hashing of strings and var names: Enabled")
+            Log.Info("Hashing of strings: Enabled")
 
         if type(self.options["--fernet"]) != bool:
             raise TypeError(f"invalid \"--fernet\" variable type: must be \"bool\", but it's \"{type(self.options["--fernet"])}\"")
         if self.options["--fernet"]:
-            Log.Info(f"Fernet encryption: Enabled")
+            Log.Info("Fernet encryption: Enabled")
 
         if type(self.options["--aes"]) != bool:
             raise TypeError(f"invalid \"--aes\" variable type: must be \"bool\", but it's \"{type(self.options["--aes"])}\"")
         if self.options["--aes"]:
-            Log.Info(f"AES-GCM encryption: Enabled")
+            Log.Info("AES-GCM-SIV encryption: Enabled")
 
         if type(self.options["--chacha"]) != bool:
             raise TypeError(f"invalid \"--chacha\" variable type: must be \"bool\", but it's \"{type(self.options["--chacha"])}\"")
         if self.options["--chacha"]:
-            Log.Info(f"ChaCha20 encryption: Enabled")
+            Log.Info("XChaCha20-Poly1305 encryption: Enabled")
 
         if type(self.options["--base64"]) != bool:
             raise TypeError(f"invalid \"--base64\" variable type: must be \"bool\", but it's \"{type(self.options["--base64"])}\"")
         if self.options["--base64"]:
-            Log.Info(f"Base64 encoding: Enabled")
+            Log.Info("Base64 encoding: Enabled")
 
         # Val Params
         if type(self.options["--recursive"]) != int:
@@ -153,7 +165,21 @@ Note:
         if self.options["--recursive"] < 0:
             raise TypeError("Invalid --recursive value")
         if self.options["--recursive"] > 0:
-            Log.Info(f"Recursive obfuscation loops: {self.options["--recursive"]}")
+            Log.Info(f"Recursive approach loops: {self.options["--recursive"]}")
+
+        if type(self.options["--decoy"]) != str:
+            raise TypeError(f"invalid \"--decoy\" variable type: must be \"str\", but it's \"{type(self.options["--decoy"])}\"")
+        decoyfile:str = self.options["--decoy"]
+        if decoyfile:
+            if not path.exists(decoyfile) or not path.isfile(decoyfile) or not decoyfile.endswith(".py"):
+                    raise ValueError(f"Invalid decoy file path: {decoyfile}")
+
+            with open(decoyfile, "r", encoding="utf-8") as pyFile:
+                self.decoySource:str = pyFile.read()
+            if not self.decoySource:
+                raise ValueError(f"Decoy file {decoyfile} is empty")
+
+            Log.Info(f"Decoy code loaded from: {decoyfile}")
 
         Log.Custom("",end='\n')# Separator
 
@@ -242,7 +268,7 @@ Note:
 
     def ObfuscateFiles(self) -> None:
         # pyrefly: ignore [bad-argument-type] - all those were already checked in ValidateParams
-        self.obfuscation = MainObfuscation(self.options["--hashdata"], self.options["--fernet"], self.options["--aes"], self.options["--chacha"], self.options["--base64"], self.options["--recursive"], self.options["--no-protect"], self.options["--enc-exec"])
+        self.obfuscation = MainObfuscation(self.options["--hashdata"], self.options["--fernet"], self.options["--aes"], self.options["--chacha"], self.options["--base64"], self.options["--recursive"], self.options["--no-protect"], self.options["--enc-exec"], self.options["--debug-error"], self.options["--debug"], self.decoySource)
 
         # pyrefly: ignore [not-iterable] - already checked in ValidateParams, self.options["--files"] can only be list[str]
         for file in self.options["--files"]:

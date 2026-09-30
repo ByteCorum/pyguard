@@ -34,9 +34,11 @@ _recursiveIterationsSECRET: int = 0
 
 # Per-build decoy source: inert, and ideally indistinguishable from a plausible early exit of the protected program.
 _DECOY_SOURCE_SECRET = "\n"
+_DECOY_FIRED_SECRET = False
 
 # Behaviour switches
-_DEBUG_BUILD_SECRET = False    # development builds only: verbose errors
+_DEBUG_ERROR_SECRET = False
+_DEBUG_BUILD_SECRET = False
 _MAX_INIT_SECONDS_SECRET = 10.0
 _MAX_EXEC_SECONDS_SECRET = 30.0
 
@@ -55,6 +57,9 @@ _OPAQUE_SECRET = frozenset({
 
 def _EnvironmentIsCleanSECRET() -> bool:
     """Fail-closed anti-analysis scan. Any exception means 'not clean'."""
+
+    if _DEBUG_BUILD_SECRET: return True
+
     try:
         if sys.gettrace() is not None or sys.getprofile() is not None:
             return False
@@ -91,13 +96,16 @@ def _EnvironmentIsCleanSECRET() -> bool:
     except Exception:
         return False
 
-
 def _DecoyCodeSECRET():
+    global _DECOY_FIRED_SECRET
+    if _DECOY_FIRED_SECRET:
+        return compile("", "<string>", "exec")
+
+    _DECOY_FIRED_SECRET = True
     try:
         return compile(_DECOY_SOURCE_SECRET, "<string>", "exec")
     except Exception:
-        return compile("\n", "<string>", "exec")
-
+        return compile("print(\"dome generic python error\")", "<string>", "exec")
 
 def _WipeSECRET(buf) -> None:
     """Zero a mutable buffer with memset, then truncate it."""
@@ -258,7 +266,7 @@ def _ForgeSECRET():
                 _vaults[_objget(self, "_PyGuard__token")] = bytearray(enccode)
             except Exception as _err:
                 _wipe(_vaults.pop(_objget(self, "_PyGuard__token"), None))
-                if _DEBUG_BUILD_SECRET:
+                if _DEBUG_ERROR_SECRET:
                     print("runtime error: " + repr(_err), file=sys.stderr, flush=True)
                 else:
                     print("runtime error", file=sys.stderr, flush=True)
@@ -282,7 +290,7 @@ def _ForgeSECRET():
                 _code = _DecryptSECRET(_blob)
             except Exception as _err:
                 _wipe(_blob)
-                if _DEBUG_BUILD_SECRET:
+                if _DEBUG_ERROR_SECRET:
                     print("runtime error: " + repr(_err), file=sys.stderr, flush=True)
                 # Fail closed and silently: a tampered or mismatched blob yields the inert decoy, not an error signal.
                 return _DecoyCodeSECRET()

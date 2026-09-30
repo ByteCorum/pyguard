@@ -1,3 +1,4 @@
+from copy import error
 from shutil import rmtree
 from subprocess import run, PIPE, DEVNULL
 import ast
@@ -18,7 +19,7 @@ from utils.logger import Log
 class MainObfuscation:
     def __init__(self, hashdata: bool, fernet: bool, aes: bool,
                 chacha: bool, base64: bool,
-                recursive: int, noProtect: bool, encExec: bool) -> None:
+                recursive: int, noProtect: bool, encExec: bool, debugerror: bool, debug: bool, decoySource: str) -> None:
 
         self.hashdata: bool = hashdata
         self.fernet: bool = fernet
@@ -27,9 +28,10 @@ class MainObfuscation:
         self.base64: bool = base64
         self.noProtect: bool = noProtect
         self.encExec: bool = encExec
-        self.debug: bool = False
+        self.debugerror: bool = debugerror
+        self.debug: bool = debug
         self.recursive: int = recursive
-        self.decoySource: str = ""
+        self.decoySource: str = decoySource
 
         if self.recursive < 0:
             raise ValueError("Invalid recursive value")
@@ -187,6 +189,10 @@ class MainObfuscation:
                 raise LookupError(f"Executor strip failed: guard block not found ({count}/{expected})")
             content = content.replace(needle, "")
 
+        if not self.debug:
+            stripLine(f"_DEBUG_BUILD_{postfix} = False")
+            stripLine(f"    if _DEBUG_BUILD_{postfix}: return True")
+
         if self.noProtect:
             stripMethod("CheckFileIntegrity")
             stripLine("from hashlib import sha512")
@@ -316,9 +322,14 @@ class MainObfuscation:
 
         # Behaviour switches
         executorContent = self.Inject(executorContent,
-                                        f"_DEBUG_BUILD_{postfix} = False",
-                                        f"_DEBUG_BUILD_{postfix} = {self.debug}",
-                                        "debug switch")
+                                        f"_DEBUG_ERROR_{postfix} = False",
+                                        f"_DEBUG_ERROR_{postfix} = {self.debugerror}",
+                                        "debug error switch")
+        if self.debug:
+            executorContent = self.Inject(executorContent,
+                                            f"_DEBUG_BUILD_{postfix} = False",
+                                            f"_DEBUG_BUILD_{postfix} = {self.debug}",
+                                            "debug switch")
         decoy: str = self.decoySource or 'print("dome generic python error")'
         executorContent = self.Inject(executorContent,
                                         f'_DECOY_SOURCE_{postfix} = "\\n"',
@@ -341,7 +352,7 @@ class MainObfuscation:
             file.write(executorContent)
 
         Log.Info(f"Executor saved as {executorPath}")
-        self.AssembleExecutor(outputDir)
+        #self.AssembleExecutor(outputDir)
 
 
     def AssembleExecutor(self, outputDir: str) -> None:
@@ -378,7 +389,7 @@ setup(
 
         # pyrefly: ignore [no-matching-overload]
         result = run(
-            args=[sys.executable, self.assemblerFile, "build_ext", "--inplace"],
+            args=["python", self.assemblerFile, "build_ext", "--inplace"],
             cwd=executorDirPath,
             stdout=Log.logFile if Log.logFile else DEVNULL,
             stderr=PIPE,

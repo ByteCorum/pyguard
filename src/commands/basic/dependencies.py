@@ -1,9 +1,16 @@
-from multiprocessing.reduction import Type
+from dataclasses import dataclass
 from typing import override
-from subprocess import CompletedProcess
-from subprocess import run
+from subprocess import Popen, PIPE, CompletedProcess
+from threading import Thread
+from typing import IO
 from utils.logger import Log
 from config import Command, DEPENDENCIES
+
+@dataclass
+class PipResult:
+    returncode: int
+    stdout: str
+    stderr: str
 
 class Dependencies(Command):
     exclusiveOptions: list[str | list[str]] = [["--show", "--install", "--uninstall", "--update"]]
@@ -44,7 +51,7 @@ Note:
  '''
 
     @staticmethod
-    def __pip(args: list[str], dep: str) -> CompletedProcess[str]:
+    def __pip(args: list[str], dep: str) -> PipResult:
         command: list[str] = ["pip", *args]
 
         if Log.logFile:
@@ -54,8 +61,33 @@ Note:
         if Log.noInput:
             command.append("--no-input")
 
-        command.append(dep)
-        return run(command, capture_output=True, text=True)
+        command += ["--progress-bar", "off", dep]
+
+        stdout_lines: list[str] = []
+        stderr_lines: list[str] = []
+
+        with Popen(command, stdout=PIPE, stderr=PIPE, text=True) as process:
+            assert process.stdout is not None and process.stderr is not None
+
+            def drain(stream: IO[str], sink: list[str], bypassQuiet: bool) -> None:
+                for line in stream:
+                    line:str = line.rstrip()
+                    sink.append(line)
+                    if line:
+                        Log.Custom(line, bypassQuiet=bypassQuiet)
+
+            readers: list[Thread] = [
+                Thread(target=drain, args=(process.stdout, stdout_lines, False)),
+                Thread(target=drain, args=(process.stderr, stderr_lines, True)),
+            ]
+            for reader in readers:
+                reader.start()
+            for reader in readers:
+                reader.join()
+
+            returncode: int = process.wait()
+
+        return PipResult(returncode, "\n".join(stdout_lines), "\n".join(stderr_lines))
 
     @staticmethod
     def __logPip(result: CompletedProcess[str]) -> None:
@@ -94,9 +126,7 @@ Note:
 
         if self.options["--install"]:
             for dep in DEPENDENCIES:
-                result: CompletedProcess[str] = self.__pip(["install"], dep)
-                self.__logPip(result)
-
+                result: PipResult = self.__pip(["install"], dep)
                 if result.returncode == 0:
                     Log.Success(f"Dependency \"{dep}\" installed")
                 else:
@@ -104,9 +134,7 @@ Note:
 
         if self.options["--uninstall"]:
             for dep in DEPENDENCIES:
-                result: CompletedProcess[str] = self.__pip(["uninstall", "-y"], dep)
-                self.__logPip(result)
-
+                result: PipResult = self.__pip(["uninstall", "-y"], dep)
                 if result.returncode == 0:
                     Log.Success(f"Dependency \"{dep}\" uninstalled")
                 else:
@@ -114,9 +142,7 @@ Note:
 
         if self.options["--update"]:
             for dep in DEPENDENCIES:
-                result: CompletedProcess[str] = self.__pip(["install", "--upgrade"], dep)
-                self.__logPip(result)
-
+                result: PipResult = self.__pip(["install", "--upgrade"], dep)
                 if result.returncode == 0:
                     Log.Success(f"Dependency \"{dep}\" updated")
                 else:

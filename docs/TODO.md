@@ -13,9 +13,9 @@ Link the matching issue when one exists: `[ ] #42 ...`
 - [x] Add exception handling in places of loud fail instead of default python error | P:0 | S:m
 - [ ] Resolve issue with pointless check and param in `LegacyObfuscation.GenSeperator()` | P:3 | S:s
 - [ ] Add separator encoding with b64encode for `LegacyObfuscation.MediumObfuscation()` and `LegacyObfuscation.PowerObfuscateion()` | P:2 | S:m
-- [ ] Rework required options indicator for 1 from many | P:0 | S:s
+- [x] Rework required options indicator for 1 from many | P:0 | S:s
 - [ ] Rework parameters system to auto check type and validity | P:3 | S:xl
-- [ ] Rewrite help for commands | P:1 | S:m
+- [x] Rewrite help for commands | P:1 | S:m
 - [ ] Print output of pip in real time (dependencies.py) | P:3 | S:s
 - [x] Add variable names hashing | P:- | S:l | not planned; useless against ai code review
 - [ ] Add new vars to obfuscate

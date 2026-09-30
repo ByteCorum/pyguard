@@ -8,7 +8,6 @@ class Info(Command):
 
     options: dict[str , bool | int | str | list[str]] = {
         "--log": "",
-        "--no-color": False,
 
         "--all": False,
         "--version": False,
@@ -22,19 +21,19 @@ Usage:
 Example:
   pyguard info --all
 
-Note:
-  `                 -> only one option from a group can be used
-  *                 -> required option
-
 Options:
-  --help            -> show help for commands
-  --log <path>      -> write all logs to a file
-  --no-color        -> suppress colored output
+  --help            -> get help for commands
+  --log <path>      -> duplicate all logs to a file
 
-  --all*`           -> show all information about the program
-  --version*`       -> show version of the program
-  --url*`           -> show URL of program's github repo
-  --description*`   -> show description of the program'''
+  --all             -> show all information about the program
+  --version         -> show version of the program
+  --url             -> show URL of program's repo
+  --description     -> show description of the program
+
+Note:
+  Mutual exclusive required options:
+    --all, --version, --url, --description
+'''
 
     def __init__(self) -> None:
         try:

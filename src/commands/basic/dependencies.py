@@ -24,22 +24,24 @@ class Dependencies(Command):
 Usage:
   pyguard dependencies [options]
 Example:
-  pyguard dependencies --quiet --no-input y --install
-
-Note:
-  `                 -> only one option from a group can be used
-  *                 -> required option
+  pyguard dependencies --quiet --no-input --install
 
 Options:
-  --help            -> show help for commands
+  --help            -> get help for commands
   --quiet           -> give less output
-  --log <path>      -> write all logs to a file
+  --log <path>      -> duplicate all logs to a file
   --no-color        -> suppress colored output
+  --no-input        -> disable prompting for input
 
-  --show*`          -> show all dependencies of the program
-  --install*`       -> install all dependencies of the program
-  --uninstall*`     -> uninstall all dependencies of the program
-  --update*`        -> update all dependencies of the program'''
+  --show            -> show dependencies of the program
+  --install         -> install dependencies of the program
+  --uninstall       -> uninstall dependencies of the program
+  --update          -> update dependencies of the program
+
+Note:
+  Mutual exclusive required options:
+    --show, --install, --uninstall, --update
+ '''
 
     @staticmethod
     def __pip(args: list[str], dep: str) -> CompletedProcess[str]:

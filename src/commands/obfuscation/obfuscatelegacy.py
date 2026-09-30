@@ -26,24 +26,32 @@ class Obfuscatelegacy(Command):
 Usage:
   pyguard obfuscatelegacy [options]
 Example:
-  pyguard obfuscatelegacy --loops 3 --mode 2 --file code.py
-
-Notes:
-  *                 -> required option
-  text,text         -> to add more than one arg to option
+  pyguard obfuscatelegacy --loops 6 --mode 3 --file main.py
 
 Options:
-  --help            -> show help for commands
+  --help            -> get help for commands
   --quiet           -> give less output
-  --log <path>      -> write all logs to a file
+  --log <path>      -> duplicate all logs to a file
   --no-color        -> suppress colored output
   --no-input        -> disable prompting for input
 
-  --loops <num>*    -> number of obfuscation loops
-  --mode <num>*     -> obfuscation mode(1-4) as bigger number as better obfuscation but the output file is larger
-  --dirs <path>*    -> obfuscate all files in dir(required files or/and dir)
-  --files <path>*   -> files for obfuscation(required files or/and dir)
-  --output <path>   -> output dir'''
+  --loops <num>     -> amount of obfuscation's loops
+  --mode <1-4>      -> obfuscation mode; higher better but slower and larger
+  --dirs <path>     -> selected files for obfuscation
+  --files <path>    -> selected dirs for obfuscation
+  --output <path>   -> output dir path
+
+Note:
+  Syntax:
+    text,text         -> to add more than one arg to option
+    <name>.py         -> the entry point of your program in the end of command
+
+  Required options:
+    --loops, --mode
+
+  Required at least 1 of those options:
+     --files, --dirs
+'''
 
     def __init__(self) -> None:
         Log.Info("Legacy obfuscation")

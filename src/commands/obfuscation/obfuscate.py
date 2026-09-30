@@ -21,44 +21,62 @@ class Obfuscate(Command):
         "--chacha": False,
         "--base64": False,
         "--recursive": 0,
+
         "--no-protect": False,
         "--enc-exec" : False,
+        "--follow-imports" : False,
+        "--debug": False,
+        "--decoy": "",
+
         "--dirs": [],
         "--files": [],
         "--output": "",
-        "--follow-imports" : False,
+
         "entrypoint": ""
     }
 
     help = f'''
 Usage:
-  pyguard obfuscate [options] <entry>.py
+  pyguard obfuscate [options] <entry>
 Example:
-  pyguard obfuscate --hashdata --aes --follow-imports main.py
-
-Notes:
-  text,text         -> to add more than one arg to option
-  main.py           -> the entry point of your program
+  pyguard obfuscate --hashdata --aes --follow-imports --enc-exec --decoy decoy.py main.py
 
 Options:
-  --help            -> show help for commands
+  --help            -> get help for commands
   --quiet           -> give less output
-  --log <path>      -> write all logs to a file
+  --log <path>      -> duplicate all logs to a file
   --no-color        -> suppress colored output
   --no-input        -> disable prompting for input
 
-  --hashdata        -> convert all strings into hash
-  --fernet          -> obfuscation and encryption using fernet
-  --aes             -> obfuscation and encryption using aes256
-  --chacha          -> obfuscation and encryption using chacha20
-  --base64          -> obfuscation and encryption using base64
-  --recursive <num> -> not strong but good if u need to hide ur prog from AVs
-  --no-protect      -> disable file modification protection
-  --enc-exec        -> obfuscate executor via legacy encryption method
-  --dirs <path>     -> obfuscate all files in dir
-  --files <path>    -> files for obfuscation
-  --output <path>   -> output dir
-  --follow-imports  -> add all imports to the protected script'''
+  --hashdata        -> replace all stings in code with sha512 hash
+  --fernet          -> encrypt code using fernet
+  --aes             -> encrypt code using AES-GCM-SIV
+  --chacha          -> encrypt code using XChaCha20-Poly1305
+  --base64          -> encode entry and exit code with base64
+  --recursive <num> -> fast recursive approach to prevent antivirus detection
+
+  --no-protect      -> disable file integrity checks
+  --enc-exec        -> obfuscate executor using legacy method; may weaken security
+  --follow-imports  -> add all imports to the protected script to make building easy
+  --debug-error     -> development builds only; executor will give verbose errors
+  --debug           -> development builds only; executor will skip environment checks
+  --decoy <path>    -> code to execute if execution environment marks as hostile
+
+  --dirs <path>     -> selected dirs for obfuscation
+  --files <path>    -> selected files for obfuscation
+  --output <path>   -> output dir path
+
+Note:
+  Syntax:
+    text,text         -> to add more than one arg to option
+    <name>.py         -> the entry point of your program in the end of command
+
+  Required options:
+    entry point in the end of command
+
+  Required at least 1 of those options:
+    --hashdata, --fernet, --aes, --chacha, --base64, --recursive
+'''
 
     def __init__(self) -> None:
         Log.Info("Obfuscation")

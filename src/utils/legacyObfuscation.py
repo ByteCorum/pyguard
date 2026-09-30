@@ -7,9 +7,9 @@ from string import ascii_letters, digits
 class LegacyObfuscation:
     def __init__(self, mode: int, loops: int, separator: str) -> None:
         if mode < 1 or mode > 4:
-            raise Exception("Invalid mode value")
+            raise ValueError("Invalid mode value")
         if loops < 1:
-            raise Exception("Invalid loops value")
+            raise ValueError("Invalid loops value")
 
         self.mode = mode
         self.loops = loops
@@ -27,7 +27,7 @@ class LegacyObfuscation:
                 case 4:
                     content = self.PowerObfuscateion(content)
                 case _:
-                    raise Exception("Invalid mode value")
+                    raise ValueError("Invalid mode value")
 
         return content
 
@@ -42,7 +42,7 @@ class LegacyObfuscation:
             case 4:
                 return f"#Obfuscated by {NAME}\n_=lambda __:__import__('zlib').decompress(__import__('base64').b64decode(__import__('zlib').decompress((__import__('cryptography.fernet').fernet.Fernet(__import__('base64').b64decode(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[1])).decrypt(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[0])))[::-1]));"+content
             case _:
-                raise Exception("Invalid mode value")
+                raise ValueError("Invalid mode value")
 
     def PowerObfuscateion(self, content: str) -> str:
         bytestr:bytes = content.encode('utf-8')
@@ -108,5 +108,5 @@ class LegacyObfuscation:
         # TODO resolve this
         # ? Pointless check and param either add as obfuscationlegacy param or remove
         if length < 12:
-            raise Exception("Too short separator")
+            raise ValueError("Too short separator")
         return ''.join(choice(ascii_letters+digits) for _ in range(length))

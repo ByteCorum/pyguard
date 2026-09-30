@@ -32,7 +32,7 @@ class MainObfuscation:
         self.decoySource: str = ""
 
         if self.recursive < 0:
-            raise Exception("Invalid recursive value")
+            raise ValueError("Invalid recursive value")
 
         self.InitVars()
         self.GenKeys()
@@ -149,7 +149,7 @@ class MainObfuscation:
 
     def Inject(self, content: str, needle: str, replacement: str, what: str) -> str:
         if content.count(needle) != 1:
-            raise Exception(f"Executor injection failed: {what} (expected exactly 1 marker, found {content.count(needle)})")
+            raise LookupError(f"Executor injection failed: {what} (expected exactly 1 marker, found {content.count(needle)})")
         return content.replace(needle, replacement, 1)
 
 
@@ -163,12 +163,12 @@ class MainObfuscation:
                             + r"\(self.*?(?=\n        def )")
             content, count = re.subn(pattern, "", content, count=1, flags=re.DOTALL)
             if count != 1:
-                raise Exception(f"Executor strip failed: {name} stage not found")
+                raise LookupError(f"Executor strip failed: {name} stage not found")
 
         def stripLine(line: str) -> None:
             nonlocal content
             if content.count(line + "\n") != 1:
-                raise Exception(f"Executor strip failed: import not found: {line}")
+                raise LookupError(f"Executor strip failed: import not found: {line}")
             content = content.replace(line + "\n", "", 1)
 
         def stripFlag(flag: str) -> None:
@@ -176,7 +176,7 @@ class MainObfuscation:
             kept = [l for l in content.split("\n")
                     if not l.startswith(f"_{flag}{postfix}:")]
             if len(kept) == len(content.split("\n")):
-                raise Exception(f"Executor strip failed: flag {flag} not found")
+                raise LookupError(f"Executor strip failed: flag {flag} not found")
             content = "\n".join(kept)
 
         def stripGuardBlock(guardLine: str, callLine: str, expected: int = 1) -> None:
@@ -184,7 +184,7 @@ class MainObfuscation:
             needle: str = guardLine + "\n" + callLine + "\n"
             count: int = content.count(needle)
             if count != expected:
-                raise Exception(f"Executor strip failed: guard block not found ({count}/{expected})")
+                raise LookupError(f"Executor strip failed: guard block not found ({count}/{expected})")
             content = content.replace(needle, "")
 
         if self.noProtect:
@@ -245,11 +245,11 @@ class MainObfuscation:
         postfix: str = sha512(''.join(choice(ascii_letters + digits) for _ in range(randint(64, 128))).encode("utf-8")).hexdigest()
 
         if not path.exists(EXECUTOR_TEMPLATE):
-            raise Exception(f"Executor template {EXECUTOR_TEMPLATE} doesn't exist")
+            raise ValueError(f"Executor template {EXECUTOR_TEMPLATE} doesn't exist")
         with open(EXECUTOR_TEMPLATE, "r", encoding="utf-8") as executor:
             executorContent: str = executor.read()
         if not executorContent:
-            raise Exception(f"Executor template {EXECUTOR_TEMPLATE} is empty")
+            raise ValueError(f"Executor template {EXECUTOR_TEMPLATE} is empty")
 
 
         executorContent = executorContent.replace("SECRET", postfix)

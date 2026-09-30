@@ -19,7 +19,7 @@ class FernetMethod:
         fernet = Fernet(key)
         return fernet.decrypt(content)
 
-class AesGcmMethod: # Present but unused in releases cuz covered by XChaCha20Poly1305Method
+class AesGcmMethod: # Present but unused in releases because covered by XChaCha20Poly1305Method
     @staticmethod
     def GenKey(length: int = 256) -> bytes:
         if length not in (128, 192, 256):
@@ -78,7 +78,7 @@ class AesGcmSivMethod:
             associated_data=None
         )
 
-class ChaCha20Poly1305Method: # Present but unused in releases cuz covered by XChaCha20Poly1305Method
+class ChaCha20Poly1305Method: # Present but unused in releases because covered by XChaCha20Poly1305Method
     @staticmethod
     def GenKey() -> bytes:
         return get_random_bytes(32)

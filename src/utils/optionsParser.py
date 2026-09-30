@@ -19,21 +19,21 @@ class OptionsParser:
         skipNext = False # Some params have value like <param-name> <value>, this var determinate whether next obj is param(False) and not value(True)
 
         for i in range(0, self.argc):
-            # Skip current obj, cuz it was logged as value of previous param
+            # Skip current obj, because it was logged as value of previous param
             if skipNext:
                 skipNext = False
                 continue
 
             option:str = self.argv[i]
 
-            # Check for main file "entrypoint", special check cuz it always goes in the end of the file and does't match expected option
+            # Check for main file "entrypoint", special check because it always goes in the end of the file and does't match expected option
             if "entrypoint" in self.command.options and i == self.argc-1 and option.find(".py") != -1:
                 self.command.options["entrypoint"] = option
                 continue
 
             # Check whether option in dict options under command, for understanding see obfuscate.py command
             if option not in self.command.options:
-                raise Exception(f"invalid option: \"{option}\"")
+                raise ValueError(f"invalid option: \"{option}\"")
 
             # Gives value of an option to check whether it has default value or smt else
             if OptionsParser.__CheckOptionValue(self.command.options[option]):
@@ -45,22 +45,27 @@ class OptionsParser:
 
             else:
                 # If it's not a bool it should has a value
-                # It doesn't check the correctness of passed value, cuz it's job of command itself, just it's existence
+                # It doesn't check the correctness of passed value, because it's job of command itself, just it's existence
                 if i+1 >= self.argc or self.argv[i+1].find("--") != -1:
-                    raise Exception(f"invalid \"{option}\" value")
+                    raise ValueError(f"invalid \"{option}\" value")
 
                 value:str = self.argv[i+1]
                 expectedValueType: type[bool|str|int|list[str]] =  type(self.command.options[option])
 
-                #Program assume that value have the same type as expectedValueType and tries to convert to needed type and should fail with exception if types don't match
-                if expectedValueType == str:
-                    self.command.options[option] = value
-                elif expectedValueType == int:
-                    self.command.options[option] = int(value)
-                elif expectedValueType == list:
-                    self.command.options[option] = value.split(",")
-                else:
-                    raise Exception(f"internal error: expectedValueType({expectedValueType}) doesn't match any known type")
+                try:
+                    #Program assume that value have the same type as expectedValueType and tries to convert to needed type and should fail with exception if types don't match
+                    if expectedValueType == str:
+                        self.command.options[option] = value
+                    elif expectedValueType == int:
+                        self.command.options[option] = int(value)
+                    elif expectedValueType == list:
+                        self.command.options[option] = value.split(",")
+                    else:
+                        raise TypeError(f"internal error: expectedValueType({expectedValueType}) doesn't match any known type", "internal")
+                except Exception as error:
+                        if len(error.args) >= 2  and error.args[1] == "internal":
+                            raise TypeError(error) from error
+                        raise TypeError(f"invalid \"{option}\" variable type: must be \"{type(self.command.options[option])}\", but it's \"{type(value)}\"")
 
                 skipNext = True
 
@@ -78,14 +83,14 @@ class OptionsParser:
                             break
 
                     if not inited:
-                        raise Exception(f"at least one of this options required: \"{", ".join(option)}\"")
+                        raise ValueError(f"at least one of this options required: \"{", ".join(option)}\"")
 
                 # One particular option
                 else:
                     # Gives value of an option to check whether it has default value or smt else
-                    # pyrefly: ignore [bad-index] - option can not be list cuz already checked
+                    # pyrefly: ignore [bad-index] - option can not be list because already checked
                     if not OptionsParser.__CheckOptionValue(self.command.options[option]):
-                        raise Exception(f"missing required option: \"{option}\"")
+                        raise ValueError(f"missing required option: \"{option}\"")
 
         if self.command.exclusiveOptions:
             for group in self.command.exclusiveOptions:
@@ -96,7 +101,7 @@ class OptionsParser:
 
                 #More than 1 only if more than one are on =)
                 if sum(state) > 1:
-                    raise Exception(f"some options can't be used together: \"{", ".join(group)}\"")
+                    raise ValueError(f"some options can't be used together: \"{", ".join(group)}\"")
 
     @staticmethod
     # True if initialized
@@ -119,6 +124,6 @@ class OptionsParser:
             if option == []:
                 return False
         else:
-            raise Exception(f"internal error: optionType({optionType}) doesn't match any known type")
+            raise TypeError(f"internal error: optionType({optionType}) doesn't match any known type")
 
         return True

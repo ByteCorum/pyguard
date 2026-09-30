@@ -27,15 +27,15 @@ class PyGuard:
         try:
             # Call should contain at least executable path and command name
             if len(argv) < 2:
-                raise Exception("missing command name")
+                raise ValueError("missing command name")
 
             self.command = self.GetCommand(argv[1])
 
-        except Exception as error:
-            # helpCmd passed to helpCmd, cuz helpCmd expects a command to get help from
-            # pyrefly: ignore [not-callable] - this is required, cuz pyrefly can't check not directly imported command
+        except ValueError as error:
+            # helpCmd passed to helpCmd, because helpCmd expects a command to get help from
+            # pyrefly: ignore [not-callable] - this is required, because pyrefly can't check not directly imported command
             self.helpCmd(self.helpCmd)
-            Log.Fail("Command parsing failed: "+str(error), True)
+            raise Exception("Command parsing failed: "+str(error)) from error
 
         try:
             # Only initialize parser
@@ -45,20 +45,20 @@ class PyGuard:
 
             # Highest priority for help
             if parser.helpCalled:
-                # pyrefly: ignore [not-callable] - this is required, cuz pyrefly can't check not directly imported command
+                # pyrefly: ignore [not-callable] - this is required, because pyrefly can't check not directly imported command
                 self.helpCmd(self.command)
                 exit(0)
 
             parser.ValidateParams()
 
-        except Exception as error:
-            Log.Fail(f"Options parsing failed: {error}", True)
+        except (ValueError, TypeError) as error:
+            raise Exception(f"Options parsing failed: {error}") from error
 
     def GetCommand(self, name:str) -> Command:
-        #name.title(), cuz it looks in files in commands/** for class name, which is title by project style
+        #name.title(), because it looks in files in commands/** for class name, which is title by project style
         command: Command | None = self.SearchCommand(name.title(), COMMANDS_DIR)
         if not command:
-            raise Exception(f"invalid command name: \"{name.lower()}\"")
+            raise ValueError(f"invalid command name: \"{name.lower()}\"")
 
         return command
 
@@ -109,29 +109,29 @@ class PyGuard:
     def SetGlobalVars(self) -> None:
         if "--log" in self.command.options:
             if type(self.command.options["--log"]) != str:
-                raise Exception(f"invalid \"--log\" variable type: must be \"str\", but it's \"{type(self.command.options["--log"])}\"")
+                raise TypeError(f"internal error: invalid \"--log\" variable type: must be \"str\", but it's \"{type(self.command.options["--log"])}\"")
 
             Log.logFile = self.command.options["--log"]
 
         if "--quiet" in self.command.options:
             if type(self.command.options["--quiet"]) != bool:
-                raise Exception(f"invalid \"--quiet\" variable type: must be \"bool\", but it's \"{type(self.command.options["--quiet"])}\"")
+                raise TypeError(f"internal error: invalid \"--quiet\" variable type: must be \"bool\", but it's \"{type(self.command.options["--quiet"])}\"")
             Log.quiet = self.command.options["--quiet"]
 
         if "--no-color" in self.command.options:
             if type(self.command.options["--no-color"]) != bool:
-                raise Exception(f"invalid \"--no-color\" variable type: must be \"bool\", but it's \"{type(self.command.options["--no-color"])}\"")
+                raise TypeError(f"internal error: invalid \"--no-color\" variable type: must be \"bool\", but it's \"{type(self.command.options["--no-color"])}\"")
             Log.colored = not self.command.options["--no-color"]
 
         if "--no-input" in self.command.options:
             if type(self.command.options["--no-input"]) != bool:
-                raise Exception(f"invalid \"--no-input\" variable type: must be \"bool\", but it's \"{type(self.command.options["--no-input"])}\"")
+                raise TypeError(f"internal error: invalid \"--no-input\" variable type: must be \"bool\", but it's \"{type(self.command.options["--no-input"])}\"")
             Log.noInput = self.command.options["--no-input"]
 
     def RunCommand(self) -> None:
         Log.Info(f"{NAME}\n")
         try:
-            # pyrefly: ignore [not-callable] - this is required, cuz pyrefly can't check not directly imported command
+            # pyrefly: ignore [not-callable] - this is required, because pyrefly can't check not directly imported command
             self.command()
         except Exception as error:
-            Log.Fail(f"Command failed: {error}", True)
+            raise Exception(f"Command failed: {error}") from error

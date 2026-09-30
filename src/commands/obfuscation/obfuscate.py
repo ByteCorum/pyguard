@@ -64,10 +64,19 @@ Options:
         Log.Info("Obfuscation")
 
         self.InitVars()
-        self.ValidateParams()
-        self.ObfuscateFiles()
-        # pyrefly: ignore [bad-argument-type] - already checked in ValidateParams, self.options["--output"] can only be str
-        self.obfuscation.CreateExecutor(self.options["--output"])
+        try:
+            self.ValidateParams()
+        except TypeError as error:
+            raise TypeError("Parameter validation error: internal error: " + str(error)) from error
+        except ValueError as error:
+            raise ValueError("Parameter validation error: " + str(error)) from error
+
+        try:
+            self.ObfuscateFiles()
+            # pyrefly: ignore [bad-argument-type] - already checked in ValidateParams, self.options["--output"] can only be str
+            self.obfuscation.CreateExecutor(self.options["--output"])
+        except Exception as error:
+            raise Exception("Execution error: " + str(error)) from error
 
         Log.Success("Obfuscation completed", bypassQuiet=True)
 
@@ -80,51 +89,51 @@ Options:
         # Bool Params
         ## Options
         if type(self.options["--follow-imports"]) != bool:
-            raise Exception(f"invalid \"--follow-imports\" variable type: must be \"bool\", but it's \"{type(self.options["--follow-imports"])}\"")
+            raise TypeError(f"invalid \"--follow-imports\" variable type: must be \"bool\", but it's \"{type(self.options["--follow-imports"])}\"")
         if self.options["--follow-imports"]:
             Log.Info(f"Follow imports: Enabled")
 
         if type(self.options["--no-protect"]) != bool:
-            raise Exception(f"invalid \"--no-protect\" variable type: must be \"bool\", but it's \"{type(self.options["--no-protect"])}\"")
+            raise TypeError(f"invalid \"--no-protect\" variable type: must be \"bool\", but it's \"{type(self.options["--no-protect"])}\"")
         if self.options["--no-protect"]:
             Log.Info(f"File modification protection: Disabled")
 
         if type(self.options["--enc-exec"]) != bool:
-            raise Exception(f"invalid \"--enc-exec\" variable type: must be \"bool\", but it's \"{type(self.options["--enc-exec"])}\"")
+            raise TypeError(f"invalid \"--enc-exec\" variable type: must be \"bool\", but it's \"{type(self.options["--enc-exec"])}\"")
         if self.options["--enc-exec"]:
             Log.Info(f"Executor encryption: Enabled")
 
         ## Methods
         if type(self.options["--hashdata"]) != bool:
-            raise Exception(f"invalid \"--hashdata\" variable type: must be \"bool\", but it's \"{type(self.options["--hashdata"])}\"")
+            raise TypeError(f"invalid \"--hashdata\" variable type: must be \"bool\", but it's \"{type(self.options["--hashdata"])}\"")
         if self.options["--hashdata"]:
             Log.Info(f"Hashing of strings and var names: Enabled")
 
         if type(self.options["--fernet"]) != bool:
-            raise Exception(f"invalid \"--fernet\" variable type: must be \"bool\", but it's \"{type(self.options["--fernet"])}\"")
+            raise TypeError(f"invalid \"--fernet\" variable type: must be \"bool\", but it's \"{type(self.options["--fernet"])}\"")
         if self.options["--fernet"]:
             Log.Info(f"Fernet encryption: Enabled")
 
         if type(self.options["--aes"]) != bool:
-            raise Exception(f"invalid \"--aes\" variable type: must be \"bool\", but it's \"{type(self.options["--aes"])}\"")
+            raise TypeError(f"invalid \"--aes\" variable type: must be \"bool\", but it's \"{type(self.options["--aes"])}\"")
         if self.options["--aes"]:
             Log.Info(f"AES-GCM encryption: Enabled")
 
         if type(self.options["--chacha"]) != bool:
-            raise Exception(f"invalid \"--chacha\" variable type: must be \"bool\", but it's \"{type(self.options["--chacha"])}\"")
+            raise TypeError(f"invalid \"--chacha\" variable type: must be \"bool\", but it's \"{type(self.options["--chacha"])}\"")
         if self.options["--chacha"]:
             Log.Info(f"ChaCha20 encryption: Enabled")
 
         if type(self.options["--base64"]) != bool:
-            raise Exception(f"invalid \"--base64\" variable type: must be \"bool\", but it's \"{type(self.options["--base64"])}\"")
+            raise TypeError(f"invalid \"--base64\" variable type: must be \"bool\", but it's \"{type(self.options["--base64"])}\"")
         if self.options["--base64"]:
             Log.Info(f"Base64 encoding: Enabled")
 
         # Val Params
         if type(self.options["--recursive"]) != int:
-            raise Exception(f"invalid \"--recursive\" variable type: must be \"int\", but it's \"{type(self.options["--recursive"])}\"")
+            raise TypeError(f"invalid \"--recursive\" variable type: must be \"int\", but it's \"{type(self.options["--recursive"])}\"")
         if self.options["--recursive"] < 0:
-            raise Exception("Invalid --recursive value")
+            raise TypeError("Invalid --recursive value")
         if self.options["--recursive"] > 0:
             Log.Info(f"Recursive obfuscation loops: {self.options["--recursive"]}")
 
@@ -132,35 +141,35 @@ Options:
 
         # Program Entry File
         if type(self.options["entrypoint"]) != str:
-            raise Exception(f"invalid entrypoint path type: must be \"str\", but it's \"{type(self.options["entrypoint"])}\"")
+            raise TypeError(f"invalid entrypoint path type: must be \"str\", but it's \"{type(self.options["entrypoint"])}\"")
 
         self.entryPoint:str = self.options["entrypoint"]
         if not path.exists(self.entryPoint) or not path.isfile(self.entryPoint) or not self.entryPoint.endswith(".py"):
-            raise Exception(f"Invalid entry file path: {self.entryPoint}")
+            raise ValueError(f"Invalid entry file path: {self.entryPoint}")
 
         self.entryPoint = path.abspath(self.entryPoint)
         Log.Info(f"Entry file: {self.entryPoint}")
 
         # Files Check
         if type(self.options["--files"]) != list:
-            raise Exception(f"invalid \"--files\" variable type: must be \"list\", but it's \"{type(self.options["--files"])}\"")
+            raise TypeError(f"invalid \"--files\" variable type: must be \"list\", but it's \"{type(self.options["--files"])}\"")
 
         for i in range (len(self.options["--files"])):
             file:str = self.options["--files"][i]
             if not path.exists(file) or not path.isfile(file) or not file.endswith(".py"):
-                raise Exception(f"Invalid file path: {file}")
+                raise ValueError(f"Invalid file path: {file}")
 
             self.options["--files"][i] = path.abspath(file)
             Log.Info(f"Included file: {self.options["--files"][i]}")
 
         # Dirs Check
         if type(self.options["--dirs"]) != list:
-            raise Exception(f"invalid \"--dirs\" variable type: must be \"list\", but it's \"{type(self.options["--dirs"])}\"")
+            raise TypeError(f"invalid \"--dirs\" variable type: must be \"list\", but it's \"{type(self.options["--dirs"])}\"")
 
         for i in range(len(self.options["--dirs"])):
             dir:str = self.options["--dirs"][i]
             if not path.exists(dir) or not path.isdir(dir):
-                raise Exception(f"Invalid directory path: {dir}")
+                raise ValueError(f"Invalid directory path: {dir}")
 
             self.options["--dirs"][i] = path.abspath(dir)
             Log.Info(f"Included dir: {self.options['--dirs'][i]}")
@@ -180,7 +189,7 @@ Options:
 
         # Output dir
         if type(self.options["--output"]) != str:
-            raise Exception(f"invalid \"--output\" variable type: must be \"str\", but it's \"{type(self.options["--output"])}\"")
+            raise TypeError(f"invalid \"--output\" variable type: must be \"str\", but it's \"{type(self.options["--output"])}\"")
         if not self.options["--output"]:
             self.options["--output"] = "obfuscated"
 
@@ -267,7 +276,7 @@ Options:
         with open(self.entryPoint, "r", encoding="utf-8") as pyFile:
             content:str = pyFile.read()
         if not content:
-            raise Exception(f"File {self.entryPoint} is empty") # entry point must exist
+            raise ValueError(f"File {self.entryPoint} is empty") # entry point must exist
 
         content = RemoveComments(content)
         self.FollowImports(content)

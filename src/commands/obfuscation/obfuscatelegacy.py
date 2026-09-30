@@ -49,8 +49,17 @@ Options:
         Log.Info("Legacy obfuscation")
 
         self.InitVars()
-        self.ValidateParams()
-        self.ObfuscateFiles()
+        try:
+            self.ValidateParams()
+        except TypeError as error:
+            raise TypeError("Parameter validation error: internal error: " + str(error)) from error
+        except ValueError as error:
+            raise ValueError("Parameter validation error: " + str(error)) from error
+
+        try:
+            self.ObfuscateFiles()
+        except Exception as error:
+            raise Exception("Execution error: " + str(error)) from error
 
         Log.Success("Legacy obfuscation completed", bypassQuiet=True)
 
@@ -60,39 +69,39 @@ Options:
     @override
     def ValidateParams(self) -> None:
         if type(self.options["--loops"]) != int:
-            raise Exception(f"invalid \"--loops\" variable type: must be \"int\", but it's \"{type(self.options["--loops"])}\"")
+            raise TypeError(f"invalid \"--loops\" variable type: must be \"int\", but it's \"{type(self.options["--loops"])}\"")
         if self.options["--loops"] < 1:
-            raise Exception("Invalid --loops value")
+            raise ValueError("Invalid --loops value")
         Log.Info(f"Loops amount: {self.options["--loops"]}")
 
         if type(self.options["--mode"]) != int:
-            raise Exception(f"invalid \"--mode\" variable type: must be \"int\", but it's \"{type(self.options["--mode"])}\"")
+            raise TypeError(f"invalid \"--mode\" variable type: must be \"int\", but it's \"{type(self.options["--mode"])}\"")
         if self.options["--mode"] < 1 or self.options["--mode"] > 4:
-            raise Exception("Invalid --mode value")
+            raise ValueError("Invalid --mode value")
         Log.Info(f"Obfuscation mode: {self.options["--mode"]}")
 
         Log.Custom("",end='\n')# Separator
 
         # Files Check
         if type(self.options["--files"]) != list:
-            raise Exception(f"invalid \"--files\" variable type: must be \"list\", but it's \"{type(self.options["--files"])}\"")
+            raise TypeError(f"invalid \"--files\" variable type: must be \"list\", but it's \"{type(self.options["--files"])}\"")
 
         for i in range (len(self.options["--files"])):
             file:str = self.options["--files"][i]
             if not path.exists(file) or not path.isfile(file) or not file.endswith(".py"):
-                raise Exception(f"Invalid file path: {file}")
+                raise ValueError(f"Invalid file path: {file}")
 
             self.options["--files"][i] = path.abspath(file)
             Log.Info(f"Included file: {self.options["--files"][i]}")
 
         # Dirs Check
         if type(self.options["--dirs"]) != list:
-            raise Exception(f"invalid \"--dirs\" variable type: must be \"list\", but it's \"{type(self.options["--dirs"])}\"")
+            raise TypeError(f"invalid \"--dirs\" variable type: must be \"list\", but it's \"{type(self.options["--dirs"])}\"")
 
         for i in range(len(self.options["--dirs"])):
             dir:str = self.options["--dirs"][i]
             if not path.exists(dir) or not path.isdir(dir):
-                raise Exception(f"Invalid directory path: {dir}")
+                raise ValueError(f"Invalid directory path: {dir}")
 
             self.options["--dirs"][i] = path.abspath(dir)
             Log.Info(f"Included dir: {self.options['--dirs'][i]}")
@@ -112,7 +121,7 @@ Options:
 
         # Output dir
         if type(self.options["--output"]) != str:
-            raise Exception(f"invalid \"--output\" variable type: must be \"str\", but it's \"{type(self.options["--output"])}\"")
+            raise TypeError(f"invalid \"--output\" variable type: must be \"str\", but it's \"{type(self.options["--output"])}\"")
         if not self.options["--output"]:
             self.options["--output"] = "obfuscated"
 

@@ -37,19 +37,25 @@ Options:
   --description*`   -> show description of the program'''
 
     def __init__(self) -> None:
-        self.ValidateParams()
-        self.RunOption()
+        try:
+            self.ValidateParams()
+        except TypeError as error:
+            raise TypeError("Parameter validation error: " + str(error)) from error
+        try:
+            self.RunOption()
+        except Exception as error:
+            raise TypeError("Execution error: " + str(error)) from error
 
     @override
     def ValidateParams(self) -> None:
         if type(self.options["--all"]) != bool:
-            raise Exception(f"invalid \"--all\" variable type: must be \"bool\", but it's \"{type(self.options["--all"])}\"")
+            raise TypeError(f"internal error: invalid \"--all\" variable type: must be \"bool\", but it's \"{type(self.options["--all"])}\"")
         if type(self.options["--version"]) != bool:
-            raise Exception(f"invalid \"--version\" variable type: must be \"bool\", but it's \"{type(self.options["--version"])}\"")
+            raise TypeError(f"internal error: invalid \"--version\" variable type: must be \"bool\", but it's \"{type(self.options["--version"])}\"")
         if type(self.options["--url"]) != bool:
-            raise Exception(f"invalid \"--url\" variable type: must be \"bool\", but it's \"{type(self.options["--url"])}\"")
+            raise TypeError(f"internal error: invalid \"--url\" variable type: must be \"bool\", but it's \"{type(self.options["--url"])}\"")
         if type(self.options["--description"]) != bool:
-            raise Exception(f"invalid \"--description\" variable type: must be \"bool\", but it's \"{type(self.options["--description"])}\"")
+            raise TypeError(f"internal error: invalid \"--description\" variable type: must be \"bool\", but it's \"{type(self.options["--description"])}\"")
 
     def RunOption(self) -> None:
         if self.options["--all"]:

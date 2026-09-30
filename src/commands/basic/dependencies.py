@@ -1,3 +1,4 @@
+from multiprocessing.reduction import Type
 from typing import override
 from subprocess import CompletedProcess
 from subprocess import run
@@ -62,19 +63,25 @@ Options:
             Log.Custom(result.stderr.strip(), bypassQuiet=True)
 
     def __init__(self) -> None:
-        self.ValidateParams()
-        self.RunOption()
+        try:
+            self.ValidateParams()
+        except TypeError as error:
+            raise TypeError("Parameter validation error: " + str(error)) from error
+        try:
+            self.RunOption()
+        except Exception as error:
+            raise TypeError("Execution error: " + str(error)) from error
 
     @override
     def ValidateParams(self) -> None:
         if type(self.options["--show"]) != bool:
-            raise Exception(f"invalid \"--show\" variable type: must be \"bool\", but it's \"{type(self.options["--show"])}\"")
+            raise TypeError(f"internal error: invalid \"--show\" variable type: must be \"bool\", but it's \"{type(self.options["--show"])}\"")
         if type(self.options["--install"]) != bool:
-            raise Exception(f"invalid \"--install\" variable type: must be \"bool\", but it's \"{type(self.options["--install"])}\"")
+            raise TypeError(f"internal error: invalid \"--install\" variable type: must be \"bool\", but it's \"{type(self.options["--install"])}\"")
         if type(self.options["--uninstall"]) != bool:
-            raise Exception(f"invalid \"--uninstall\" variable type: must be \"bool\", but it's \"{type(self.options["--uninstall"])}\"")
+            raise TypeError(f"internal error: invalid \"--uninstall\" variable type: must be \"bool\", but it's \"{type(self.options["--uninstall"])}\"")
         if type(self.options["--update"]) != bool:
-            raise Exception(f"invalid \"--update\" variable type: must be \"bool\", but it's \"{type(self.options["--update"])}\"")
+            raise TypeError(f"internal error: invalid \"--update\" variable type: must be \"bool\", but it's \"{type(self.options["--update"])}\"")
 
     def RunOption(self) -> None:
         if self.options["--show"]:

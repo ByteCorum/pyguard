@@ -96,7 +96,7 @@ Tool/Library for Python used to obfuscate and protect your code in static and ru
 ### 📜Additional Info📜
 
 > [!NOTE]
-> Obfuscation tool has 2 major versions legacy and main. This repo includes both of them, but we highly recommend you to use the main version, cuz it much more secure. Anyway, we won't end support of legacy version, so if u have issues, let us know.
+> Obfuscation tool has 2 major versions legacy and main. This repo includes both of them, but we highly recommend you to use the main version, because it much more secure. Anyway, we won't end support of legacy version, so if u have issues, let us know.
 
 > [!TIP]
 > We highly recommend compiling obfuscated script using Nuitka. Use `--follow imports` while obfuscating to tell Nuitka what to import

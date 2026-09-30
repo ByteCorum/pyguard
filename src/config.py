@@ -1,12 +1,11 @@
 from abc import ABC
 from os import path
 
-NAME:str  = "Pyguard"
+NAME:str  = "PyGuard"
 AUTHOR:str = "ByteCorum"
 URL:str  = "https://github.com/ByteCorum/pyguard"
 VERSION:str  = "3.1.0.0"
-DESCRIPTION:str  = "Tool/Library for Python used to obfuscate and protect your code in static and runtime from decompilation, reverse debug, etc. Also, can prevent detection by antivirus"
-
+DESCRIPTION:str  = "PyGuard is a Python obfuscation and anti-tampering library. It protects from decompilation, static analysis, reverse engineering, and antivirus analysis"
 COMMANDS_DIR:str = f"{path.dirname(path.abspath(__file__))}/commands/"
 EXECUTOR_TEMPLATE:str = f"{path.dirname(path.abspath(__file__))}/templates/executor.py"
 DEPENDENCIES:list[str]  = ["cryptography", "pycryptodome", "cython", "nuitka", "colorama", "types-colorama","setuptools"]
@@ -26,8 +25,8 @@ class Command(ABC):
 #         pass
 #
 #      # this function should validate parameters and parameters type
-#      # you must validate parameters type to avoid runtime errors or unexpected behavior, cuz every option in options can have any type between str , bool | int | str | list[str]
-#      # you should not validate default parameters cuz they already validated for you
+#      # you must validate parameters type to avoid runtime errors or unexpected behavior, because every option in options can have any type between str , bool | int | str | list[str]
+#      # you should not validate default parameters because they already validated for you
 #      def ValidateParams(self) -> None:
 #         pass
 #

@@ -22,7 +22,7 @@ class Obfuscate(Command):
         "--base64": False,
         "--recursive": 0,
 
-        "--no-protect": False,
+        "--no-integrity": False,
         "--enc-exec" : False,
         "--follow-imports" : False,
         "--debug-error": False,
@@ -56,7 +56,7 @@ Options:
   --base64          -> encode entry and exit code with base64
   --recursive <num> -> fast recursive approach to prevent antivirus detection
 
-  --no-protect      -> disable file integrity checks
+  --no-integrity    -> disable file integrity checks
   --enc-exec        -> obfuscate executor using legacy method; may weaken security
   --follow-imports  -> add all imports to the protected script to make building easy
   --debug-error     -> development builds only; executor will give verbose errors
@@ -113,9 +113,9 @@ Note:
         if self.options["--follow-imports"]:
             Log.Info("Follow imports: Enabled")
 
-        if type(self.options["--no-protect"]) != bool:
-            raise TypeError(f"invalid \"--no-protect\" variable type: must be \"bool\", but it's \"{type(self.options["--no-protect"])}\"")
-        if self.options["--no-protect"]:
+        if type(self.options["--no-integrity"]) != bool:
+            raise TypeError(f"invalid \"--no-integrity\" variable type: must be \"bool\", but it's \"{type(self.options["--no-integrity"])}\"")
+        if self.options["--no-integrity"]:
             Log.Warning("File integrity checks: Disabled")
 
         if type(self.options["--enc-exec"]) != bool:
@@ -268,7 +268,7 @@ Note:
 
     def ObfuscateFiles(self) -> None:
         # pyrefly: ignore [bad-argument-type] - all those were already checked in ValidateParams
-        self.obfuscation = MainObfuscation(self.options["--hashdata"], self.options["--fernet"], self.options["--aes"], self.options["--chacha"], self.options["--base64"], self.options["--recursive"], self.options["--no-protect"], self.options["--enc-exec"], self.options["--debug-error"], self.options["--debug"], self.decoySource)
+        self.obfuscation = MainObfuscation(self.options["--hashdata"], self.options["--fernet"], self.options["--aes"], self.options["--chacha"], self.options["--base64"], self.options["--recursive"], self.options["--no-integrity"], self.options["--enc-exec"], self.options["--debug-error"], self.options["--debug"], self.decoySource)
 
         # pyrefly: ignore [not-iterable] - already checked in ValidateParams, self.options["--files"] can only be list[str]
         for file in self.options["--files"]:
@@ -362,7 +362,7 @@ Note:
         if self.options["--follow-imports"]:
             modules:list[str] = GetImports(content)
 
-            if not self.options["--no-protect"]:
+            if not self.options["--no-integrity"]:
                 modules += ["hashlib", "os"]
 
             if self.options["--chacha"]:

@@ -16,17 +16,117 @@ In particular:
 
 ## Environment Setup
 
-TODO
+### Prerequisites
 
-<!-- Describe here how to build and run the project locally.
-     Required content:
+- **Python**: 3.12 or higher (3.14 recommended, as used in CI)
+- **Package manager**: pip
+- **System tools**: git, standard build tools
 
-     1. Prerequisites: language version, package manager, tools
-     2. Clone and dependency installation commands
-     3. Build command
-     4. Test command
-     5. Lint / format command
--->
+### Setup
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/ByteCorum/pyguard.git
+    cd pyguard
+    ```
+
+2. Create and activate a virtual environment (recommended):
+
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate  # Linux/macOS
+    .\.venv\Scripts\activate   # Windows
+    ```
+
+3. Install dependencies:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4. Install development tools:
+    ```bash
+    pip install pyrefly yamllint
+    ```
+
+### Build Command
+
+Build a standalone executable using Nuitka:
+
+```bash
+# Linux/macOS
+chmod +x build-scripts/build-linux.sh
+./build-scripts/build-linux.sh
+
+# Windows
+build-scripts\build-win.cmd
+```
+
+This creates `pyguard` (or `pyguard.exe` on Windows) in the repository root.
+
+### Test Command
+
+Run local tests using the test script:
+
+```bash
+# Run all tests
+./examples/test.sh
+
+# Run specific test group
+./examples/test.sh complex
+./examples/test.sh multifile
+./examples/test.sh onefile
+./examples/test.sh complex-legacy
+./examples/test.sh multifile-legacy
+./examples/test.sh onefile-legacy
+```
+
+All tests verify that obfuscated code produces the expected "hello world" output.
+
+### Lint / Format Command
+
+- **Type checking** (pyrefly):
+
+    ```bash
+    pyrefly check
+    ```
+
+- **YAML linting** (.github/workflows, .yamllint):
+
+    ```bash
+    yamllint .
+    ```
+
+- **EditorConfig**: Configure your editor to use the project's [.editorconfig](../.editorconfig) for consistent formatting:
+    - 4-space indentation
+    - UTF-8 encoding
+    - LF line endings
+    - Trim trailing whitespace
+
+## Codebase Map
+
+```
+src/
+├── main.py              # Entry point
+├── pyguard.py           # Core command processor
+├── config.py            # Global configuration and base classes
+├── commands/            # Command implementations
+│   ├── obfuscation/     # Obfuscation commands
+│   │   ├── obfuscate.py        # Modern obfuscation engine
+│   │   └── obfuscatelegacy.py  # Legacy obfuscation methods
+│   └── basic/           # Utility commands
+│       ├── help.py             # Help system
+│       ├── info.py             # Program information
+│       └── dependencies.py     # Dependency management
+└── utils/               # Core functionality
+    ├── obfuscation.py         # Main obfuscation logic
+    ├── legacyObfuscation.py   # Legacy obfuscation algorithms
+    ├── crypto.py               # Cryptographic implementations
+    ├── langMgr.py             # Source code processing
+    ├── optionsParser.py       # Command-line parsing
+    └── logger.py              # Logging system
+```
 
 ## Making Changes
 

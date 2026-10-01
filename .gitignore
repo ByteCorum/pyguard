@@ -152,7 +152,6 @@ cython_debug/
 .pyvenv/
 pyvenv/
 .vscode/
-#obfuscated/
-#src/test.py
 pyguard
+pyguard/
 tmp-exec/

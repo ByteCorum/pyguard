@@ -64,6 +64,60 @@ jobs:
                   path: |
                       pyguard.exe
 
+    obfuscation-complex:
+        name: Complex Obfuscation Windows
+        needs: ["build"]
+        runs-on: windows-latest
+
+        steps:
+            - name: Check out code from GitHub
+              uses: actions/checkout@v7
+
+            - name: Set up Python
+              uses: actions/setup-python@v7
+              with:
+                  python-version: "3.14"
+
+            - name: Install dependencies
+              shell: bash
+              run: |
+                  python3 -m pip install --upgrade pip
+                  pip3 install -r requirements.txt
+
+            - name: Download Executable
+              uses: actions/download-artifact@v8
+              with:
+                  name: pyguard-win_${{ needs.build.outputs.sha_short }}
+                  path: "examples"
+
+            - name: Preparation For Test
+              working-directory: examples
+              shell: bash
+              run: |
+                  mv pyguard.exe complex/
+                  rm -rf complex/obfuscated
+
+            - name: Obfuscation Test
+              working-directory: examples/complex
+              shell: bash
+              run: |
+                  ./pyguard.exe obfuscate --aes --hashdata --fernet --chacha --base64 --recursive 8 --follow-imports --no-input --files proxy.py --dirs dir main.py
+
+            - name: Testing Results
+              working-directory: examples/complex/obfuscated
+              shell: bash
+              run: |
+                  OUTPUT=$(python main.py)
+                  echo "Output: $OUTPUT"
+
+                  echo "Result: "
+                  if [ "$OUTPUT" = "hello world" ]; then
+                    echo "Success: main.py output contains 'hello world'"
+                  else
+                    echo "Failure: main.py output does not contain 'hello world'"
+                    exit 1
+                  fi
+
     obfuscation-multifile:
         name: Multi-file Obfuscation Windows
         needs: ["build"]
@@ -101,7 +155,7 @@ jobs:
               working-directory: examples/multifile
               shell: bash
               run: |
-                  ./pyguard.exe obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input --files lib.py main.py
+                  ./pyguard.exe obfuscate --aes --hashdata --fernet --chacha --base64 --recursive 8 --follow-imports --no-input --files lib.py main.py
 
             - name: Testing Results
               working-directory: examples/multifile/obfuscated
@@ -155,10 +209,64 @@ jobs:
               working-directory: examples/onefile
               shell: bash
               run: |
-                  ./pyguard.exe obfuscate --aes --hashdata --fernet --chacha --salsa --base64 --recursive 4 --follow-imports --no-input main.py
+                  ./pyguard.exe obfuscate --aes --hashdata --fernet --chacha --base64 --recursive 8 --follow-imports --no-input main.py
 
             - name: Testing Results
               working-directory: examples/onefile/obfuscated
+              shell: bash
+              run: |
+                  OUTPUT=$(python main.py)
+                  echo "Output: $OUTPUT"
+
+                  echo "Result: "
+                  if [ "$OUTPUT" = "hello world" ]; then
+                    echo "Success: main.py output contains 'hello world'"
+                  else
+                    echo "Failure: main.py output does not contain 'hello world'"
+                    exit 1
+                  fi
+
+    obfuscationlegacy-complex:
+        name: Complex Legacy Obfuscation Windows
+        needs: ["build"]
+        runs-on: windows-latest
+
+        steps:
+            - name: Check out code from GitHub
+              uses: actions/checkout@v7
+
+            - name: Set up Python
+              uses: actions/setup-python@v7
+              with:
+                  python-version: "3.14"
+
+            - name: Install dependencies
+              shell: bash
+              run: |
+                  python3 -m pip install --upgrade pip
+                  pip3 install -r requirements.txt
+
+            - name: Download Executable
+              uses: actions/download-artifact@v8
+              with:
+                  name: pyguard-win_${{ needs.build.outputs.sha_short }}
+                  path: "examples"
+
+            - name: Preparation For Test
+              working-directory: examples
+              shell: bash
+              run: |
+                  mv pyguard.exe complex-legacy/
+                  rm -rf complex-legacy/obfuscated
+
+            - name: Obfuscation Test
+              working-directory: examples/complex-legacy
+              shell: bash
+              run: |
+                  ./pyguard.exe obfuscatelegacy --no-input --mode 4 --loops 6 --seplen 64 --dirs dir --files main.py,proxy.py
+
+            - name: Testing Results
+              working-directory: examples/complex-legacy/obfuscated
               shell: bash
               run: |
                   OUTPUT=$(python main.py)
@@ -209,7 +317,7 @@ jobs:
               working-directory: examples/multifile-legacy
               shell: bash
               run: |
-                  ./pyguard.exe obfuscatelegacy --no-input --mode 4 --loops 6 --files lib.py,main.py
+                  ./pyguard.exe obfuscatelegacy --no-input --mode 4 --loops 6 --seplen 64 --files lib.py,main.py
 
             - name: Testing Results
               working-directory: examples/multifile-legacy/obfuscated
@@ -263,7 +371,7 @@ jobs:
               working-directory: examples/onefile-legacy
               shell: bash
               run: |
-                  ./pyguard.exe obfuscatelegacy --no-input --mode 4 --loops 6 --files main.py
+                  ./pyguard.exe obfuscatelegacy --no-input --mode 4 --loops 6 --seplen 64 --files main.py
 
             - name: Testing Results
               working-directory: examples/onefile-legacy/obfuscated

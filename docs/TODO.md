@@ -9,6 +9,9 @@ Link the matching issue when one exists: `[ ] #42 ...`
 ## Planned
 
 - [ ] Publish as python lib | P:1 | S:m
+- [ ] Global vars should be defined globally, not in every command | P:3 | S:l | Not affect functionality, only code quality
+- [ ] Rework parameters system to auto check type and validity | P:3 | S:xl
+- [x] Add variable names hashing | P:- | S:l | not planned; useless against ai code review
 
 ## Feature Ideas
 
@@ -16,4 +19,4 @@ Link the matching issue when one exists: `[ ] #42 ...`
 
 ## Known Issues
 
--
+- [x] Obfuscation of files from different projects is not supported; use 1 command per project | P:- | S:- | wontfix: by design, the common-root guard rejects unrelated trees to prevent misplaced output and broken dependencies

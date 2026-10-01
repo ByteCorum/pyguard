@@ -1,263 +1,371 @@
-from random import choice, randint
-from string import ascii_letters, digits
-from utils.crypto import FernetCipher, AesCipher, ChaCha20Cipher, Salsa20Cipher, compress, b64encode
-import ast
-from hashlib import sha256
-from os import makedirs, getcwd, chdir, remove, rename, walk
+from copy import error
 from shutil import rmtree
 from subprocess import run, PIPE, DEVNULL
-from config import NAME, VERSION, AUTHOR
+import ast
+from random import choice, randint
+from string import ascii_letters, digits
+from zlib import compress
+from hashlib import sha512
+from os import path, makedirs, remove, listdir, rename
+import sys
+import re
+from typing import override
+from base64 import b64encode
+from utils.crypto import FernetMethod, AesGcmSivMethod, XChaCha20Poly1305Method
+from utils.legacyObfuscation import LegacyObfuscation
+from config import NAME, VERSION, AUTHOR, EXECUTOR_TEMPLATE
 from utils.logger import Log
 
 class MainObfuscation:
     def __init__(self, hashdata: bool, fernet: bool, aes: bool,
-                chacha20: bool, salsa20: bool, base64: bool,
-                recursive: int, noProtect: bool, encExec: bool) -> None:
-        self.hashdata = hashdata
-        self.fernet = fernet
-        self.aes = aes
-        self.chacha20 = chacha20
-        self.salsa20 = salsa20
-        self.base64 = base64
-        self.noProtect = noProtect
-        self.encExec = encExec
-        self.recursive = recursive
+                chacha: bool, base64: bool,
+                recursive: int, noProtect: bool, encExec: bool, debugerror: bool, debug: bool, decoySource: str) -> None:
+
+        self.hashdata: bool = hashdata
+        self.fernet: bool = fernet
+        self.aes: bool = aes
+        self.chacha: bool = chacha
+        self.base64: bool = base64
+        self.noProtect: bool = noProtect
+        self.encExec: bool = encExec
+        self.debugerror: bool = debugerror
+        self.debug: bool = debug
+        self.recursive: int = recursive
+        self.decoySource: str = decoySource
+
         if self.recursive < 0:
-            raise Exception("Invalid recursive value.")
+            raise ValueError("Invalid recursive value")
 
-        self.PrepareKeys()
+        self.InitVars()
+        self.GenKeys()
 
-    def PrepareKeys(self) -> None:
-        self.number = randint(10000000,99999999)
+    def InitVars(self) -> None:
+        self.number: int = randint(1000000000, 9999999999)
+        self.executorDir: str = "pyguard"
+        self.executorFile: str = f"script_{self.number}.py"
+        self.assemblerFile: str = f"assembler.py"
 
         if self.hashdata:
-            self.hashedVariables = []
+            # Maps SHA-512 digest -> compressed original string
+            self.hashedVariables: dict[str, bytes] = {}
+
         if not self.noProtect:
-            self.files = []
+            # Maps relpath to file from pyguard executor -> SHA-512 digest
+            self.files: dict[str, str] = {}
+
+    def GenKeys(self) -> None:
         if self.fernet:
-            self.fernetKey = FernetCipher.GenKey()
+            self.fernetKey: bytes = FernetMethod.GenKey()
         if self.aes:
-            self.aesKey = AesCipher.GenKey(256)
-        if self.chacha20:
-            self.chacha20Key = ChaCha20Cipher.GenKey()
-        if self.salsa20:
-            self.salsa20Key = Salsa20Cipher.GenKey()
+            self.aesKey: bytes = AesGcmSivMethod.GenKey(256)
+        if self.chacha:
+            self.chachaKey: bytes = XChaCha20Poly1305Method.GenKey()
 
     def Obfuscate(self, content: str) -> bytes:
         if self.hashdata:
             content = self.HashVariables(content)
 
-        content = content.encode('utf-8')
-        content = compress(content)
-        content = content[::-1]
+        bytestr:bytes = content.encode('utf-8')
+        bytestr = compress(bytestr)
+        bytestr = bytestr[::-1]
+
         if self.base64:
-            content = b64encode(content)
-            content = compress(content)
+            bytestr = b64encode(bytestr)
+            bytestr = compress(bytestr)
 
         if self.fernet:
-            content = FernetCipher.Encrypt(self.fernetKey, content)
-            content = compress(content)
+            bytestr = FernetMethod.Encrypt(self.fernetKey, bytestr)
+            bytestr = compress(bytestr)
 
         if self.aes:
-            content = AesCipher.Encrypt(self.aesKey, content)
-            content = compress(content)
+            bytestr = AesGcmSivMethod.Encrypt(self.aesKey, bytestr)
+            bytestr = compress(bytestr)
 
-        if self.chacha20:
-            content = ChaCha20Cipher.Encrypt(self.chacha20Key, content)
-            content = compress(content)
-
-        if self.salsa20:
-            content = Salsa20Cipher.Encrypt(self.salsa20Key, content)
-            content = compress(content)
+        if self.chacha:
+            bytestr = XChaCha20Poly1305Method.Encrypt(self.chachaKey, bytestr)
+            bytestr = compress(bytestr)
 
         for i in range(self.recursive):
-            content = b64encode(content)
-            content = content[::-1]
-            content = compress(content)
+            bytestr = b64encode(bytestr)
+            bytestr = bytestr[::-1]
+            bytestr = compress(bytestr)
 
-        content = content[::-1]
+        bytestr = bytestr[::-1]
+
         if self.base64:
-            content = b64encode(content)
-            content = compress(content)
+            bytestr = b64encode(bytestr)
+            bytestr = compress(bytestr)
 
-        return content
+        return bytestr
+
+    class __VariableHasher(ast.NodeTransformer):
+        def __init__(self, hashed: dict[str, bytes]) -> None:
+            self.hashed = hashed
+
+        @staticmethod
+        def __is_interesting(s: str) -> bool:
+            # More than one character and containing at least one letter or one digit (excludes, for example, "," or " " alone).
+            return len(s) > 1 and any(
+                c in ascii_letters or c in digits for c in s
+            )
+
+        @override
+        def visit_Constant(self, node: ast.Constant) -> ast.Constant:
+            if isinstance(node.value, str) and self.__is_interesting(node.value):
+                raw:bytes = node.value.encode('utf-8')
+                digest:str = sha512(raw).hexdigest()
+
+                # setdefault guarantees idempotency: if this exact string was already seen, the stored entry is kept and compress() is not executed again
+                self.hashed.setdefault(digest, compress(raw))
+                node.value = digest
+            return node
 
     def HashVariables(self, content: str) -> str:
-        tree = ast.parse(content)
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Constant) and isinstance(node.value, str):
-                string = node.value
+        try:
+            tree: ast.Module = ast.parse(content)
+        except SyntaxError as error:
+            raise ValueError(f"Source is not valid Python: {error}") from error
 
-                if len(string) > 1 and (any(char in ascii_letters for char in string) or any(char in digits for char in string)):
-                    hashstr = sha256(string.encode('utf-8')).hexdigest()
-                    compressedString = compress(string.encode('utf-8'))
-
-                    if [hashstr,compressedString] not in self.hashedVariables:
-                        self.hashedVariables.append([hashstr,compressedString])
-                    content = content.replace(string, hashstr,1)
-
-        return content
+        # __VariableHasher overrides default behavior of visit
+        tree = self.__VariableHasher(self.hashedVariables).visit(tree)
+        # Fills in missing lineno and col_offset attributes on modified nodes. Node replacement can leave location metadata inconsistent.
+        ast.fix_missing_locations(tree)
+        return ast.unparse(tree)
 
     def Wrap(self, content: bytes) -> str:
-        content = f'''#Obfuscated by {NAME} {VERSION}
-from PyGuard.script_{self.number} import PyGuard, _
-_(PyGuard({content}, __file__)._)'''
+        return f"#Obfuscated by {NAME}\nfrom pyguard.script_{self.number} import PyGuard, _\n_(PyGuard({content}, __file__)._)"
 
-        return content
-
-    def ProtectFile(self, outputDir, filepath):
+    #relfilepath -> path to file in project
+    def ProtectFileModifications(self, relfilepath: str, outputDir: str) -> None:
         if self.noProtect:
             return
 
-        while filepath.startswith(('\\', '/')):
-            filepath = filepath[1:]
+        filepath: str = path.normpath(path.join(outputDir, relfilepath))
+        executorPath: str = path.normpath(path.join(outputDir, self.executorDir, self.executorFile))
+        fromExecToFile: str = path.relpath(filepath, path.dirname(executorPath))
 
-        with open(f"{outputDir}/{filepath}", "rb") as file:
-            fileHash = sha256(file.read()).hexdigest()
+        with open(filepath, "rb") as file:
+            fileHash:str = sha512(file.read()).hexdigest()
 
-            if [filepath, fileHash] not in self.files:
-                self.files.append([filepath, fileHash])
+        self.files[fromExecToFile] = fileHash
 
-    def CreateExecutor(self, outputDir):
-        secret = sha256(''.join(choice(ascii_letters+digits) for _ in range(randint(16,32))).encode("utf-8")).hexdigest()
-        context = f'''
-{'''from hashlib import sha256
-from os import path, getcwd''' if not self.noProtect else ""}
-{"from Crypto.Cipher import ChaCha20" if self.chacha20 else ""}
-{"from Crypto.Cipher import Salsa20" if self.salsa20 else ""}
-{"from cryptography.hazmat.primitives.ciphers.aead import AESGCM" if self.aes else ""}
-{"from cryptography.fernet import Fernet" if self.fernet else ""}
+    def Inject(self, content: str, needle: str, replacement: str, what: str) -> str:
+        if content.count(needle) != 1:
+            raise LookupError(f"Executor injection failed: {what} (expected exactly 1 marker, found {content.count(needle)})")
+        return content.replace(needle, replacement, 1)
 
-from base64 import b64decode, b64encode
-from zlib import decompress
-from sys import exit
 
-_ = exec
+    def StripDisabledLayers(self, executorContent: str, postfix: str) -> str:
+        #A disabled layer must leave no trace at all: a dead `if _flag: self.__Stage(...)` call would hand an analyst the stage names and framing hints of layers this build never uses
+        content: str = executorContent
 
-class PyGuard:
-    def __init__(self, code, file):
-        try:
-            self.__code{secret} = code
-            self.__file{secret} = file
-            code = None
-            file = None
+        def stripMethod(name: str) -> None:
+            nonlocal content
+            pattern: str = (r"\n        def __" + name + re.escape(postfix)
+                            + r"\(self.*?(?=\n        def )")
+            content, count = re.subn(pattern, "", content, count=1, flags=re.DOTALL)
+            if count != 1:
+                raise LookupError(f"Executor strip failed: {name} stage not found")
 
-            {f"self.__CheckHash{secret}()" if not self.noProtect else ""}
-            self.__Decrypt{secret}()
-        except Exception as runTimeError:
-            print("Runtime error occurred, error: " + str(runTimeError))
-            exit(-1)
+        def stripLine(line: str) -> None:
+            nonlocal content
+            if content.count(line + "\n") != 1:
+                raise LookupError(f"Executor strip failed: import not found: {line}")
+            content = content.replace(line + "\n", "", 1)
 
-    def __dir__(self) -> list[str]:
-        return []
+        def stripFlag(flag: str) -> None:
+            nonlocal content
+            kept = [l for l in content.split("\n")
+                    if not l.startswith(f"_{flag}{postfix}:")]
+            if len(kept) == len(content.split("\n")):
+                raise LookupError(f"Executor strip failed: flag {flag} not found")
+            content = "\n".join(kept)
 
-{f'''    def __CheckHash{secret}(self):
-        try:
-            self.__file{secret} = path.relpath(self.__file{secret}, getcwd())
+        def stripGuardBlock(guardLine: str, callLine: str, expected: int = 1) -> None:
+            nonlocal content
+            needle: str = guardLine + "\n" + callLine + "\n"
+            count: int = content.count(needle)
+            if count != expected:
+                raise LookupError(f"Executor strip failed: guard block not found ({count}/{expected})")
+            content = content.replace(needle, "")
 
-            with open(self.__file{secret}, 'rb') as file:
-                fileHash = sha256(file.read()).hexdigest()
+        if not self.debug:
+            stripLine(f"_DEBUG_BUILD_{postfix} = False")
+            stripLine(f"    if _DEBUG_BUILD_{postfix}: return True")
 
-            for file in {self.files}:
-                if path.samefile(self.__file{secret}, file[0]) and fileHash == file[1]:
-                    self.__file{secret} = None
-                    return
+        if self.noProtect:
+            stripMethod("CheckFileIntegrity")
+            stripLine("from hashlib import sha512")
+            stripLine("from os import path")
+            stripFlag("integrityEnabled")
+            stripGuardBlock(
+                f"                if _integrityEnabled{postfix}:",
+                f"                    self.__CheckFileIntegrity{postfix}(filepath)")
 
-            raise Exception("Invalid file hash")
-        except Exception as runTimeError:
-            print("Runtime error occurred, error: " + str(runTimeError))
-            exit(-1)''' if not self.noProtect else ""}
+        if not self.base64:
+            stripMethod("Base64")
+            stripFlag("base64Enabled")
+            stripGuardBlock(
+                f"            if _base64Enabled{postfix}:",
+                f"                _b = self.__Base64{postfix}(_b)", expected=2)
 
-    def __Decrypt{secret}(self):
-        try:
-            {f"self.__Base64{secret}()" if self.base64 else ""}
-            self.__code{secret} = self.__code{secret}[::-1]
-            {f"self.__Recursive{secret}()" if self.recursive else ""}
-            {f"self.__Salsa{secret}()" if self.salsa20 else ""}
-            {f"self.__ChaCha{secret}()" if self.chacha20 else ""}
-            {f"self.__Aes{secret}()" if self.aes else ""}
-            {f"self.__Fernet{secret}()" if self.fernet else ""}
-            {f"self.__Base64{secret}()" if self.base64 else ""}
+        if self.recursive <= 0:
+            stripMethod("Recursive")
+            stripFlag("recursiveIterations")
+            stripGuardBlock(
+                f"            if _recursiveIterations{postfix}:",
+                f"                _b = self.__Recursive{postfix}(_b)")
 
-            self.__code{secret} = self.__code{secret}[::-1]
-            self.__code{secret} = decompress(self.__code{secret})
-            self.__code{secret} = self.__code{secret}.decode('utf-8')
+        if not self.chacha:
+            stripMethod("ChaCha")
+            stripLine("from Crypto.Cipher import ChaCha20_Poly1305")
+            stripFlag("chachaEnabled")
+            stripGuardBlock(
+                f"            if _chachaEnabled{postfix}:",
+                f"                _b = self.__ChaCha{postfix}(_b)")
 
-            {f"self.__ReturnVariables{secret}()" if self.hashdata else ""}
-            self.__code{secret} = b64encode(self.__code{secret}.encode('utf-8'))
+        if not self.aes:
+            stripMethod("Aes")
+            stripLine("from cryptography.hazmat.primitives.ciphers.aead import AESGCMSIV")
+            stripFlag("aesEnabled")
+            stripGuardBlock(
+                f"            if _aesEnabled{postfix}:",
+                f"                _b = self.__Aes{postfix}(_b)")
 
-        except Exception as runTimeError:
-            print("Runtime error occurred, error: " + str(runTimeError))
-            exit(-1)
+        if not self.fernet:
+            stripMethod("Fernet")
+            stripLine("from cryptography.fernet import Fernet")
+            stripFlag("fernetEnabled")
+            stripGuardBlock(
+                f"            if _fernetEnabled{postfix}:",
+                f"                _b = self.__Fernet{postfix}(_b)")
 
-    @property
-    def _(self):
-        return compile(b64decode(self.__code{secret}).decode('utf-8'), '<string>', 'exec')
+        # b64decode is used by __Base64, __Recursive, __ChaCha and __Aes; only when all four are gone may the import go too.
+        if (not self.base64) and self.recursive <= 0 and (not self.chacha) and (not self.aes):
+            stripLine("from base64 import b64decode")
+        return content
 
-{f'''    def __Recursive{secret}(self):
-        for i in range({self.recursive}):
-            self.__code{secret} = decompress(self.__code{secret})
-            self.__code{secret} = self.__code{secret}[::-1]
-            self.__code{secret} = b64decode(self.__code{secret})''' if self.recursive else ""}
 
-{f'''    def __Salsa{secret}(self):
-        self.__code{secret} = decompress(self.__code{secret})
-        self.__code{secret} = b64decode(self.__code{secret})
-        nonce = self.__code{secret}[:8]
-        self.__code{secret} = self.__code{secret}[8:]
-        self.__code{secret} = Salsa20.new(key={self.salsa20Key}, nonce=nonce).decrypt(self.__code{secret})'''
-        if self.salsa20 else ""}
+    def CreateExecutor(self, outputDir: str) -> None:
+        # Per-build random postfix
+        postfix: str = sha512(''.join(choice(ascii_letters + digits) for _ in range(randint(64, 128))).encode("utf-8")).hexdigest()
 
-{f'''    def __ChaCha{secret}(self):
-        self.__code{secret} = decompress(self.__code{secret})
-        self.__code{secret} = b64decode(self.__code{secret})
-        nonce = self.__code{secret}[:8]
-        self.__code{secret} = self.__code{secret}[8:]
-        self.__code{secret} = ChaCha20.new(key={self.chacha20Key}, nonce=nonce).decrypt(self.__code{secret})'''
-        if self.chacha20 else ""}
+        if not path.exists(EXECUTOR_TEMPLATE):
+            raise ValueError(f"Executor template {EXECUTOR_TEMPLATE} doesn't exist")
+        with open(EXECUTOR_TEMPLATE, "r", encoding="utf-8") as executor:
+            executorContent: str = executor.read()
+        if not executorContent:
+            raise ValueError(f"Executor template {EXECUTOR_TEMPLATE} is empty")
 
-{f'''    def __Aes{secret}(self):
-        self.__code{secret} = decompress(self.__code{secret})
-        aes = AESGCM({self.aesKey})
-        self.__code{secret} = b64decode(self.__code{secret})
-        nonce = self.__code{secret}[:12]
-        self.__code{secret} = self.__code{secret}[12:]
-        self.__code{secret} = aes.decrypt(nonce, self.__code{secret}, associated_data=None)''' if self.aes else ""}
 
-{f'''    def __Fernet{secret}(self):
-        self.__code{secret} = decompress(self.__code{secret})
-        fernet = Fernet({self.fernetKey})
-        self.__code{secret} = fernet.decrypt(self.__code{secret})''' if self.fernet else ""}
+        executorContent = executorContent.replace("SECRET", postfix)
+        executorContent = self.StripDisabledLayers(executorContent, postfix)
 
-{f'''    def __Base64{secret}(self):
-        self.__code{secret} = decompress(self.__code{secret})
-        self.__code{secret} = b64decode(self.__code{secret})''' if self.base64 else ""}
+        # Presence verification
+        if not self.noProtect:
+            executorContent = self.Inject(executorContent,
+                                            f"_integrityEnabled{postfix}: bool = True",
+                                            f"_integrityEnabled{postfix}: bool = True",
+                                            "integrity switch")
+        if self.base64:
+            executorContent = self.Inject(executorContent,
+                                            f"_base64Enabled{postfix}: bool = True",
+                                            f"_base64Enabled{postfix}: bool = True",
+                                            "base64 switch")
+        if self.chacha:
+            executorContent = self.Inject(executorContent,
+                                            f"_chachaEnabled{postfix}: bool = True",
+                                            f"_chachaEnabled{postfix}: bool = True",
+                                            "chacha switch")
+        if self.aes:
+            executorContent = self.Inject(executorContent,
+                                            f"_aesEnabled{postfix}: bool = True",
+                                            f"_aesEnabled{postfix}: bool = True",
+                                            "aes switch")
+        if self.fernet:
+            executorContent = self.Inject(executorContent,
+                                            f"_fernetEnabled{postfix}: bool = True",
+                                            f"_fernetEnabled{postfix}: bool = True",
+                                            "fernet switch")
 
-{f'''    def __ReturnVariables{secret}(self):
-        for raw in {self.hashedVariables}:
-            string = decompress(raw[1]).decode("utf-8")
-            self.__code{secret} = self.__code{secret}.replace(raw[0], string)''' if self.hashdata else ""}
-'''
-        outputDir =f"{outputDir}/PyGuard"
-        makedirs(outputDir)
+        #Manifests
+        executorContent = self.Inject(executorContent,
+                                        f"_filehashmanifest{postfix}: dict[str, str] = {{}}",
+                                        f"_filehashmanifest{postfix}: dict[str, str] = {getattr(self, 'files', {})!r}",
+                                        "file hash manifest")
+        executorContent = self.Inject(executorContent,
+                                        f"_literalmanifest{postfix}: dict[str, bytes] = {{}}",
+                                        f"_literalmanifest{postfix}: dict[str, bytes] = {getattr(self, 'hashedVariables', {})!r}",
+                                        "literal manifest")
+        if self.recursive > 0:
+            executorContent = self.Inject(executorContent,
+                                            f"_recursiveIterations{postfix}: int = 0",
+                                            f"_recursiveIterations{postfix}: int = {self.recursive}",
+                                            "recursive iterations")
+
+        # Keys
+        if self.chacha:
+            executorContent = self.Inject(executorContent,
+                                            f'__chachaKey{postfix} = b""',
+                                            f"__chachaKey{postfix} = {self.chachaKey!r}",
+                                            "chacha key")
+        if self.aes:
+            executorContent = self.Inject(executorContent,
+                                            f'__aesKey{postfix} = b""',
+                                            f"__aesKey{postfix} = {self.aesKey!r}",
+                                            "aes key")
+        if self.fernet:
+            executorContent = self.Inject(executorContent,
+                                            f'__fernetKey{postfix} = b""',
+                                            f"__fernetKey{postfix} = {self.fernetKey!r}",
+                                            "fernet key")
+
+        # Behaviour switches
+        executorContent = self.Inject(executorContent,
+                                        f"_DEBUG_ERROR_{postfix} = False",
+                                        f"_DEBUG_ERROR_{postfix} = {self.debugerror}",
+                                        "debug error switch")
+        if self.debug:
+            executorContent = self.Inject(executorContent,
+                                            f"_DEBUG_BUILD_{postfix} = False",
+                                            f"_DEBUG_BUILD_{postfix} = {self.debug}",
+                                            "debug switch")
+        decoy: str = self.decoySource or 'print("dome generic python error")'
+        executorContent = self.Inject(executorContent,
+                                        f'_DECOY_SOURCE_{postfix} = "\\n"',
+                                        f"_DECOY_SOURCE_{postfix} = {decoy!r}",
+                                        "decoy source")
+
+        executorPath: str = path.join(outputDir, self.executorDir, self.executorFile)
+        makedirs(path.dirname(executorPath), exist_ok=True)
+
+        initPath: str = path.join(outputDir, self.executorDir, "__init__.py")
+        with open(initPath, "w", encoding="utf-8") as initFile:
+            initFile.write(f"# {NAME} {VERSION}\n__all__: list[str] = []\n") #The directory obfuscated/pyguard/ must be an importable package for the launcher statement from pyguard.script_1401026711 import PyGuard, _ to resolve.
 
         if self.encExec:
             obfuscator = LegacyObfuscation(3, 6, LegacyObfuscation.GenSeperator())
-            context = obfuscator.Encrypt(context)
-            context = obfuscator.Wrap(context)
+            executorContent = obfuscator.Encrypt(executorContent)
+            executorContent = obfuscator.Wrap(executorContent)
 
-        with open(f"{outputDir}/script_{self.number}.py", "w", encoding="utf-8") as file:
-            file.write(context)
+        with open(executorPath, "w", encoding="utf-8") as file:
+            file.write(executorContent)
 
-        Log.Info(f"Executor script_{self.number}.py saved in {outputDir}")
+        Log.Info(f"Executor saved as {executorPath}")
         self.AssembleExecutor(outputDir)
 
-    def AssembleExecutor(self, dir: str):
-        code = f'''from setuptools import setup, Extension
+
+    def AssembleExecutor(self, outputDir: str) -> None:
+        executorDirPath: str = path.join(outputDir, self.executorDir)
+        assemblerPath: str = path.join(executorDirPath, self.assemblerFile)
+        stem: str = self.executorFile[:-3]
+        makedirs(executorDirPath, exist_ok=True)
+
+        assembler: str = f'''from setuptools import setup, Extension
 from Cython.Build import cythonize
 
 ext_modules = [
-    Extension("script_{self.number}", ["script_{self.number}.py"]),
+    Extension("{stem}", ["{self.executorFile}"]),
 ]
 
 setup(
@@ -274,131 +382,50 @@ setup(
     )
 )
 '''
+        with open(assemblerPath, "w", encoding="utf-8") as file:
+            file.write(assembler)
 
-        with open(f"{dir}/assembler.py", "w", encoding="utf-8") as file:
-            file.write(code)
+        Log.Info("Assembling executor...")
 
-        cur = getcwd()
-        chdir(dir)
+        # pyrefly: ignore [no-matching-overload]
+        result = run(
+            args=["python", self.assemblerFile, "build_ext", "--inplace"],
+            cwd=executorDirPath,
+            stdout=Log.logFile if Log.logFile else DEVNULL,
+            stderr=PIPE,
+            text=True,
+        )
+        if result.returncode != 0 or result.stderr:
+            rmtree(path.join(executorDirPath, "build"), ignore_errors=True)
+            raise Exception(f"Executor assembly failed (exit code {result.returncode}): "
+                     + (result.stderr.strip() or "compiler produced no diagnostics"))
 
-        Log.Info(f"Assembling executor...")
-        result = run(["python", "assembler.py", "build_ext", "--inplace"],
-                    stdout=Log.logFile if Log.logFile else DEVNULL,
-                    stderr=PIPE, text=True)
-        if result.stderr:
-            Log.Fail(result.stderr.strip(), True)
+        # Locate the platform-tagged extension
+        # script_NNN.cpNNN-win_amd64.pyd on Windows,
+        # script_NNN.cpython-NNN-<platform>.so elsewhere
+        built = [
+            name for name in listdir(executorDirPath)
+            if name.startswith(stem) and (name.endswith(".pyd") or name.endswith(".so"))
+        ]
+        if not built:
+            rmtree(path.join(executorDirPath, "build"), ignore_errors=True)
+            raise Exception(f"Executor assembly produced no extension module for {stem}")
+        built.sort(key=lambda name: path.getmtime(path.join(executorDirPath, name)), reverse=True)
 
-        chdir(cur)
-        rmtree(f"{dir}/build",ignore_errors=True)
-        try:
-            remove(f"{dir}/assembler.py")
-            remove(f"{dir}/script_{self.number}.py")
-            remove(f"{dir}/script_{self.number}.c")
-        except:
-            pass
+        canonical: str = stem + (".pyd" if built[0].endswith(".pyd") else ".so")
+        builtPath: str = path.join(executorDirPath, built[0])
+        canonicalPath: str = path.join(executorDirPath, canonical)
+        if path.exists(canonicalPath):
+            remove(canonicalPath)
+        if builtPath != canonicalPath:
+            rename(builtPath, canonicalPath)
 
-        for dirpath, _, filenames in walk(dir):
-            for filename in filenames:
-                if filename.endswith(".pyd"):
-                    rename(dirpath+"/"+filename, f'{dirpath}/script_{self.number}.pyd')
+        # Remove intermediates. The .py source must be deleted so the import resolves to the extension only, never to readable source.
+        rmtree(path.join(executorDirPath, "build"), ignore_errors=True)
+        for intermediate in (self.assemblerFile, self.executorFile, f"{stem}.c"):
+            try:
+                remove(path.join(executorDirPath, intermediate))
+            except OSError:
+                pass
 
-        Log.Info(f"Executor script_{self.number}.pyd assembled in {dir}")
-
-class LegacyObfuscation:
-    def __init__(self, mode, loops, separator: str):
-        if mode < 1 or mode > 4:
-            raise Exception("Invalid mode value.")
-        if loops < 1:
-            raise Exception("Invalid loops value.")
-
-        self.mode = mode
-        self.loops = loops
-        self.separator = separator
-
-    def Encrypt(self, content) -> str:
-        for i in range(self.loops):
-            match self.mode:
-                case 1:
-                    content = self.LiteObfuscation(content)
-                case 2:
-                    content = self.NormalObfuscation(content)
-                case 3:
-                    content = self.MediumObfuscation(content)
-                case 4:
-                    content = self.PowerObfuscateion(content)
-                case _:
-                    raise Exception("Invalid mode value.")
-
-        return content
-
-    def Wrap(self, content) -> str:
-        match self.mode:
-            case 1:
-                return f"#Obfuscated by {NAME} {VERSION}\n_=lambda __:__import__('zlib').decompress(__import__('base64').b64decode((__import__('zlib').decompress(__))[::-1])[::-1]);"+content
-            case 2:
-                return f"#Obfuscated by {NAME} {VERSION}\n_=lambda __:__import__('zlib').decompress(__import__('cryptography.fernet').fernet.Fernet(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[1]).decrypt(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[0])[::-1]);"+content
-            case 3:
-                return f"#Obfuscated by {NAME} {VERSION}\n_=lambda __:__import__('zlib').decompress(__import__('cryptography.fernet').fernet.Fernet(__import__('base64').b64decode(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[1])).decrypt(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[0])[::-1]);"+content
-            case 4:
-                return f"#Obfuscated by {NAME} {VERSION}\n_=lambda __:__import__('zlib').decompress(__import__('base64').b64decode(__import__('zlib').decompress((__import__('cryptography.fernet').fernet.Fernet(__import__('base64').b64decode(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[1])).decrypt(((__import__('zlib').decompress(__))[::-1].split(b'{self.separator}'))[0])))[::-1]));"+content
-            case _:
-                raise Exception("Invalid mode value.")
-
-    def PowerObfuscateion(self, content):
-        content = content.encode('utf-8')
-        content = compress(content)
-        enccontent = b64encode(content)
-        enccontent = enccontent[::-1]
-        enccontent = compress(enccontent)
-
-        key = FernetCipher.GenKey()
-        enccontent = FernetCipher.Encrypt(key,enccontent)+self.separator.encode("utf-8")+b64encode(key)
-
-        enccontent = enccontent[::-1]
-        enccontent = compress(enccontent)
-
-        return f"exec((_)({enccontent}))"
-
-    def MediumObfuscation(self,content):
-        content = content.encode('utf-8')
-        content = compress(content)
-        content = content[::-1]
-
-        key = FernetCipher.GenKey()
-        enccontent = FernetCipher.Encrypt(key, content)+self.separator.encode("utf-8")+b64encode(key)
-
-        enccontent = enccontent[::-1]
-        enccontent = compress(enccontent)
-
-        return f"exec((_)({enccontent}))"
-
-    def NormalObfuscation(self,content):
-        content = content.encode('utf-8')
-        content = compress(content)
-        content = content[::-1]
-
-        key = FernetCipher.GenKey()
-        enccontent = FernetCipher.Encrypt(key, content)+self.separator.encode("utf-8")+key
-
-        enccontent = enccontent[::-1]
-        enccontent = compress(enccontent)
-
-        return f"exec((_)({enccontent}))"
-
-    def LiteObfuscation(self,content):
-        content = content.encode('utf-8')
-        content = compress(content)
-        content = content[::-1]
-
-        enccontent = b64encode(content)
-
-        enccontent = enccontent[::-1]
-        enccontent = compress(enccontent)
-
-        return f"exec((_)({enccontent}))"
-
-    @staticmethod
-    def GenSeperator(length = 32):
-        if length < 12:
-            raise Exception("Too short separator")
-        return ''.join(choice(ascii_letters+digits) for _ in range(length))
+        Log.Info(f"Executor {canonical} assembled in {executorDirPath}")
